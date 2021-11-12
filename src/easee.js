@@ -3,8 +3,8 @@ const axios = require('axios').default
 // API Details for Easee : https://developer.easee.cloud/docs/get-started
 
 let accessToken = null
-const onlyOneChargerIdDefault = 'EH2KYUBH'
 const apiUrl = 'https://api.easee.cloud'
+const onlyOneChargerIdDefault = process.env.EASEE_CHARGERID || 'ABBXXXXX'
 const username = process.env.EASEE_USERNAME || 'username'
 const password = process.env.EASEE_PASSWORD || 'password'
 
