@@ -55,20 +55,31 @@ async function getWeeklySchedule(chargerId = onlyOneChargerIdDefault) {
   return response
 }
 
+async function getConfig(chargerId = onlyOneChargerIdDefault) {
+  const response = await easeeGetCall(
+    `/api/chargers/${chargerId}/config`,
+  )
+  return response
+}
+
 async function start() {
   console.log('Started!')
   await initAccessToken()
 
+  /*
   const chargers = await getChargers()
   chargers.forEach((charger) => console.log(`--- Charger: ${charger.name} (${charger.id})`))
   
   const chargerDetails = await getChargerDetails(chargers[0].id)
   console.log(chargerDetails);
   
-  /*
   const schedule = await getWeeklySchedule()
   console.log(JSON.stringify(schedule, null, 2));
   */
+
+  const conf = await getConfig()
+  console.log(JSON.stringify(conf, null, 2));
+
 }
 
 start()
