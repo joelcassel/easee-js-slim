@@ -1,5 +1,4 @@
-# easee-js-slim
-## Slim API abstraction for Easee EV charging stations
+# Slim API abstraction for Easee EV charging stations
 * Uses **Axios** for access. 
 * You need an account created on Easee Cloud
 * Details on the Easee API is on https://developer.easee.cloud/docs/get-started
