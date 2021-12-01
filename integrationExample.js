@@ -1,14 +1,20 @@
 import { Easee } from './src/easee.js'
 
-const onlyOneChargerId = process.env.EASEE_CHARGERID || 'ABBXXXXX'
+//These are mandatory to set
 const username = process.env.EASEE_USERNAME || 'username'
 const password = process.env.EASEE_PASSWORD || 'password'
 
+//Set as convenience to default to one charger/site(circuit (if you only have one charger)
+const onlyOneChargerId = process.env.EASEE_CHARGERID || 'ABBXXXXX'
+const onlyOneSiteId = process.env.EASEE_SITEID || '123456'
+const onlyOneCircuitId = process.env.EASEE_CIRCUITID || '123456'
 
 
 async function printConfigDetails() {
   const easee = new Easee(username, password, {
     onlyOneChargerId: onlyOneChargerId,
+    onlyOneSiteId: onlyOneSiteId,
+    onlyOneCircuitId: onlyOneCircuitId
   })
 
   // Init and log in to the easee cloud API
@@ -33,11 +39,37 @@ async function printConfigDetails() {
     console.log(JSON.stringify(schedule, null, 2));
     */
 
+  //const sites = await easee.getSites()
+  //console.log(JSON.stringify(sites, null, 2))
+
+  //const site = await easee.getSite()
+  //console.log(JSON.stringify(site, null, 2))
+
+  //const circuit = await easee.getCircuit()
+  //console.log(JSON.stringify(circuit, null, 2))
+  
+  const circuitUpdate = { 
+    maxCircuitCurrentP1: 10, 
+    maxCircuitCurrentP2: 10, 
+    maxCircuitCurrentP3: 10,
+    offlineMaxCircuitCurrentP1: 10,
+    offlineMaxCircuitCurrentP2: 10,
+    offlineMaxCircuitCurrentP3: 10,
+  }
+  //const setCircuitResp = await easee.updateCircuitSettings(circuitUpdate)
+  //console.log(JSON.stringify(setCircuitResp, null, 2))
+
+
   // Get config using global env var as charger ID
   if(onlyOneChargerId){
-    const conf = await easee.getConfig()
+    const conf = await easee.getChargerConfig()
     console.log(JSON.stringify(conf, null, 2))
   }
+ 
+
+  const circuit = await easee.getCircuit()
+  console.log(JSON.stringify(circuit, null, 2))
+  
 }
 
 //Needs an async function to use async

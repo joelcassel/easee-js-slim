@@ -9,6 +9,8 @@ export class Easee {
     this.username = username
     this.password = password
     this.onlyOneChargerId = customData.onlyOneChargerId
+    this.onlyOneSiteId = customData.onlyOneSiteId
+    this.onlyOneCircuitId = customData.onlyOneCircuitId
   }
 
   async initAccessToken() {
@@ -35,12 +37,14 @@ export class Easee {
         'Could not get access Token from login, verify your login and credentials',
       )
       console.error(JSON.stringify(response.data, null, 2))
-      process.exit(1);
+      process.exit(1)
     }
 
     //Set global token
     console.log('Token retrieved..')
-    axios.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
+    axios.defaults.headers.common[
+      'Authorization'
+    ] = `Bearer ${this.accessToken}`
     return this.accessToken
   }
 
@@ -51,6 +55,17 @@ export class Easee {
     })
     //console.log(data);
     return data
+  }
+
+  async easeePostCall(endpoint, jsonBodyObject = {}) {
+    console.log(`Calling POST ${endpoint} ...`)
+    const response = await axios
+      .post(apiUrl + endpoint, jsonBodyObject)
+      .catch(function (error) {
+        console.log(error)
+      })
+    //console.log(data);
+    return response
   }
 
   async getChargers() {
@@ -72,10 +87,57 @@ export class Easee {
     return response
   }
 
-  async getConfig(chargerId = this.onlyOneChargerId) {
+  async getChargerConfig(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(
       `/api/chargers/${chargerId}/config`,
     )
     return response
+  }
+
+  async getSites() {
+    const response = await this.easeeGetCall(`/api/sites`)
+    return response
+  }
+
+  async getSite(siteId = this.onlyOneSiteId) {
+    const response = await this.easeeGetCall(`/api/sites/${siteId}`)
+    return response
+  }
+
+  async getCircuit(siteId = this.onlyOneSiteId, circuitId = this.onlyOneCircuitId) {
+    const response = await this.easeeGetCall(`/api/sites/${siteId}/circuits/${circuitId}/settings`)
+    return response
+  }
+
+  async updateChargerSettings(
+    settingsJsonObj = {},
+    chargerId = this.onlyOneChargerId,
+  ) {
+    const response = await this.easeePostCall(
+      `/api/chargers/${chargerId}/settings`,
+      settingsJsonObj,
+    )
+    return {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
+    }
+  }
+
+  // https://developer.easee.cloud/reference/post_api-sites-siteid-circuits-circuitid-settings
+  async updateCircuitSettings(
+    settingsJsonObj = {},
+    siteId = this.onlyOneSiteId, 
+    circuitId = this.onlyOneCircuitId
+  ) {
+    const response = await this.easeePostCall(
+      `/api/sites/${siteId}/circuits/${circuitId}/settings`,
+      settingsJsonObj,
+    )
+    return {
+      status: response.status,
+      statusText: response.statusText,
+      data: response.data,
+    }
   }
 }
