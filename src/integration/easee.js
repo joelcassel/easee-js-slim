@@ -2,7 +2,6 @@ import axios from 'axios'
 
 // API Details for Easee : https://developer.easee.cloud/docs/get-started
 const apiUrl = 'https://api.easee.cloud'
-
 export class Easee {
   constructor(username, password, customData = {}) {
     this.accessToken = null
@@ -15,10 +14,10 @@ export class Easee {
 
   async initAccessToken() {
     if (this.accessToken) {
-      console.log('Reusing access token..')
+      log('Reusing access token..')
       resolve(this.accessToken)
     }
-    console.log('Query new access token..')
+    log('Query new access token..')
     const response = await axios
       .post(apiUrl + '/api/accounts/token', {
         userName: this.username,
@@ -28,7 +27,7 @@ export class Easee {
         console.error(
           'Could not get access Token from login, verify your login and credentials..',
         )
-        console.log(error.response.data)
+        log(error.response.data)
         process.exit(1)
       })
     this.accessToken = response.data.accessToken
@@ -41,7 +40,7 @@ export class Easee {
     }
 
     //Set global token
-    console.log('Token retrieved..')
+    log('Token retrieved..')
     axios.defaults.headers.common[
       'Authorization'
     ] = `Bearer ${this.accessToken}`
@@ -49,22 +48,22 @@ export class Easee {
   }
 
   async easeeGetCall(endpoint) {
-    //console.log(`Calling GET ${endpoint} ...`)
+    log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
-      console.log(error)
+      log(error)
     })
-    //console.log(data)
+    log(`Response:\n`, data)
     return data
   }
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
-    //console.log(`Calling POST ${endpoint} ...`)
+    log(`Calling POST ${endpoint} ...`)
     const response = await axios
       .post(apiUrl + endpoint, jsonBodyObject)
       .catch(function (error) {
-        console.log(error)
+        log(error)
       })
-    //console.log(data);
+    log(`Response:\n`, data)
     return response
   }
 
@@ -144,5 +143,11 @@ export class Easee {
       statusText: response.statusText,
       data: response.data,
     }
+  }
+}
+
+function log(...args) {
+  if (process.env.EASEE_DEBUG === 'true') {
+    console.log(...args)
   }
 }

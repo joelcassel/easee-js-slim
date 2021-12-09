@@ -7,7 +7,7 @@ const password = process.env.EASEE_PASSWORD
 async function getConfigDetails() {
   if (!username || !password) {
     console.warn(
-      'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file',
+      'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit this file directly',
     )
     process.exit(1)
   }
@@ -95,21 +95,24 @@ async function getConfigDetails() {
 const collectedIds = await getConfigDetails()
 
 if (collectedIds.onlyOneCharger) {
-  console.log(`\n\n\nIt seems you have only one charger and setup.
+  console.log(`\n\n
+It seems you have only one charger and setup.
 For convenience you can then pre-set all as env-variables and the API will use the default.
 
----- Linux env based on your charger:
+---- Linux env:
 export EASEE_CHARGERID='${collectedIds.chargerId}'
 export EASEE_SITEID='${collectedIds.siteId}'
 export EASEE_CIRCUITID='${collectedIds.circuitId}'
 export EASEE_DEBUG=false
 ----
----- Windows env based on charger:
+---- Windows env:
 set EASEE_CHARGERID=${collectedIds.chargerId}
 set EASEE_SITEID=${collectedIds.siteId}
 set EASEE_CIRCUITID=${collectedIds.circuitId}
 set EASEE_DEBUG=false
 ----
+
+Change the EASEE_DEBUG to 'true' and rerun this file, then all API call-results will be printed. 
 `)
 } else {
   console.log(collectedIds)
