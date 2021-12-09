@@ -3,13 +3,14 @@ import axios from 'axios'
 // API Details for Easee : https://developer.easee.cloud/docs/get-started
 const apiUrl = 'https://api.easee.cloud'
 export class Easee {
-  constructor(username, password, customData = {}) {
+  constructor(username = process.env.EASEE_USERNAME, password = process.env.EASEE_PASSWORD, customData = {}) {
     this.accessToken = null
     this.username = username
     this.password = password
-    this.onlyOneChargerId = customData.onlyOneChargerId
-    this.onlyOneSiteId = customData.onlyOneSiteId
-    this.onlyOneCircuitId = customData.onlyOneCircuitId
+    this.onlyOneChargerId =
+      customData.onlyOneChargerId || process.env.EASEE_CHARGERID
+    this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID
+    this.onlyOneCircuitId = customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID
   }
 
   async initAccessToken() {

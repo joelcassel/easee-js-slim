@@ -1,10 +1,9 @@
 import { Easee } from '../integration/easee.js'
 
-//These are mandatory to set
-const username = process.env.EASEE_USERNAME
-const password = process.env.EASEE_PASSWORD
-
 async function getConfigDetails() {
+  //These are mandatory to set
+  const username = process.env.EASEE_USERNAME
+  const password = process.env.EASEE_PASSWORD
   if (!username || !password) {
     console.warn(
       'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit this file directly',
@@ -12,11 +11,14 @@ async function getConfigDetails() {
     process.exit(1)
   }
 
-  const collectedIdInfo = {}
-
-  const easee = new Easee(username, password)
+  const collectedIdInfo = {
+    chargerIds: [],
+    siteIds: [],
+    circuitIds: [],
+  }
 
   // Init and log in to the easee cloud API
+  const easee = new Easee(username, password)
   console.log('\n\n---- Logging in "easee.initAccessToken()" ----')
   await easee.initAccessToken()
   console.log('---- Login success ----')
@@ -112,7 +114,7 @@ set EASEE_CIRCUITID=${collectedIds.circuitId}
 set EASEE_DEBUG=false
 ----
 
-Change the EASEE_DEBUG to 'true' and rerun this file, then all API call-results will be printed. 
+Change the EASEE_DEBUG to 'true' and re-run this file, then all API call-results will be printed. 
 `)
 } else {
   console.log(collectedIds)
