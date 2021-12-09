@@ -17,35 +17,38 @@ async function getConfigDetails() {
   const easee = new Easee(username, password)
 
   // Init and log in to the easee cloud API
-  console.log('\n\n---- Logging in ----')
+  console.log('\n\n---- Logging in "easee.initAccessToken()" ----')
   await easee.initAccessToken()
   console.log('---- Login success ----')
 
   // List all chargers
   const chargers = await easee.getChargers()
-  console.log('\n\n---- Quick Listing chargers ----')
+  console.log('\n\n---- Quick Listing chargers "easee.getChargers()"----')
   chargers.forEach((charger) => {
     console.log(`  - Charger: ${charger.name} (ChargerId: ${charger.id})`)
     collectedIdInfo.chargerId = charger.id
   })
-  console.log('----  ----')
+  collectedIdInfo.onlyOneCharger = chargers.length == 1
+  console.log('----')
 
   // List all sites
   const sites = await easee.getSites()
-  console.log('\n\n---- Listing sites and details ----')
+  console.log('\n\n---- Listing sites and details "easee.getSites()" ----')
   for (let site of sites) {
-    console.log(`  --- Site: ${site.name} (id: ${site.id}) --- `)
+    console.log(
+      `   --- Site: ${site.name}, SiteID: ${site.id},  "easee.getSite(site.id)" --- `,
+    )
     collectedIdInfo.siteId = site.id
     // Get detailed info on the Site
     const siteDetail = await easee.getSite(site.id)
     console.log(
-      `   - Owner: ${siteDetail.contactInfo?.ownerName}  Phone: ${siteDetail.contactInfo?.ownerPhoneNumber}`,
+      `     - Owner: ${siteDetail.contactInfo?.ownerName}  Phone: ${siteDetail.contactInfo?.ownerPhoneNumber}`,
     )
-    console.log(`   - RatedCurrent: ${siteDetail.ratedCurrent}`)
+    console.log(`     - RatedCurrent: ${siteDetail.ratedCurrent}`)
 
     // Go through circuits on each Site
     console.log(
-      `     --- Circuits (collection of chargers sharing same fuse)  ---`,
+      `     --- Circuits[] (collection of chargers sharing same fuse)  ---`,
     )
     for (let circuit of siteDetail.circuits) {
       console.log(
@@ -60,7 +63,7 @@ async function getConfigDetails() {
       // Print circuit-current details
       const circuitDetailsResponse = await easee.getCircuit(site.id, circuit.id)
       console.log(
-        `         --- Charging-info for circuit (${circuit.id}) ---- `,
+        `         --- Charging-info for circuit (${circuit.id}) "easee.getCircuit(site.id, circuit.id)" ---- `,
       )
       // simple solution to print all with correct indentation
       for (let circuitDetailKey in circuitDetailsResponse) {
@@ -69,7 +72,9 @@ async function getConfigDetails() {
         )
       }
 
-      console.log(`     --- Charger(s) details  ---`)
+      console.log(
+        `     --- Chargers[] details, part of "easee.getSite(site.id)" ---`,
+      )
       for (let chargerDetails of circuit.chargers) {
         console.log(
           `       - Charger: ${chargerDetails.name} (ChargerId: ${chargerDetails.id})`,
@@ -81,11 +86,7 @@ async function getConfigDetails() {
           `         - LevelOfAccess: ${chargerDetails.levelOfAccess}, BackplateId: ${chargerDetails.productCode}, `,
         )
       }
-
-      //console.log(JSON.stringify(circuitDetailsResponse, null, 2))
-      //console.log(JSON.stringify(circuit, null, 2))
-
-      console.log('----  ----')
+      console.log('----')
     }
   }
   return collectedIdInfo
@@ -93,4 +94,23 @@ async function getConfigDetails() {
 
 const collectedIds = await getConfigDetails()
 
-console.log(collectedIds)
+if (collectedIds.onlyOneCharger) {
+  console.log(`\n\n\nIt seems you have only one charger and setup.
+For convenience you can then pre-set all as env-variables and the API will use the default.
+
+---- Linux env based on your charger:
+export EASEE_CHARGERID='${collectedIds.chargerId}'
+export EASEE_SITEID='${collectedIds.siteId}'
+export EASEE_CIRCUITID='${collectedIds.circuitId}'
+export EASEE_DEBUG=false
+----
+---- Windows env based on charger:
+set EASEE_CHARGERID=${collectedIds.chargerId}
+set EASEE_SITEID=${collectedIds.siteId}
+set EASEE_CIRCUITID=${collectedIds.circuitId}
+set EASEE_DEBUG=false
+----
+`)
+} else {
+  console.log(collectedIds)
+}
