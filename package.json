@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node integrationExample.js",
+    "start": "node src/examples/integrationExample.js",
+    "printEaseeDetails": "node src/examples/printEaseeDetails.js", 
     "debug": "node --inspect integrationExample.js"
   },
   "author": "Joel Cassel",

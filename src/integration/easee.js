@@ -49,16 +49,16 @@ export class Easee {
   }
 
   async easeeGetCall(endpoint) {
-    console.log(`Calling GET ${endpoint} ...`)
+    //console.log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
       console.log(error)
     })
-    //console.log(data);
+    //console.log(data)
     return data
   }
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
-    console.log(`Calling POST ${endpoint} ...`)
+    //console.log(`Calling POST ${endpoint} ...`)
     const response = await axios
       .post(apiUrl + endpoint, jsonBodyObject)
       .catch(function (error) {
@@ -104,8 +104,13 @@ export class Easee {
     return response
   }
 
-  async getCircuit(siteId = this.onlyOneSiteId, circuitId = this.onlyOneCircuitId) {
-    const response = await this.easeeGetCall(`/api/sites/${siteId}/circuits/${circuitId}/settings`)
+  async getCircuit(
+    siteId = this.onlyOneSiteId,
+    circuitId = this.onlyOneCircuitId,
+  ) {
+    const response = await this.easeeGetCall(
+      `/api/sites/${siteId}/circuits/${circuitId}/settings`,
+    )
     return response
   }
 
@@ -127,8 +132,8 @@ export class Easee {
   // https://developer.easee.cloud/reference/post_api-sites-siteid-circuits-circuitid-settings
   async updateCircuitSettings(
     settingsJsonObj = {},
-    siteId = this.onlyOneSiteId, 
-    circuitId = this.onlyOneCircuitId
+    siteId = this.onlyOneSiteId,
+    circuitId = this.onlyOneCircuitId,
   ) {
     const response = await this.easeePostCall(
       `/api/sites/${siteId}/circuits/${circuitId}/settings`,

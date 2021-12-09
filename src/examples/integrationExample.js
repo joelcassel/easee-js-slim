@@ -1,4 +1,4 @@
-import { Easee } from './src/easee.js'
+import { Easee } from '../integration/easee.js'
 
 //These are mandatory to set
 const username = process.env.EASEE_USERNAME || 'username'
