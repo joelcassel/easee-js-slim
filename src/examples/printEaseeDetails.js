@@ -50,7 +50,7 @@ async function getConfigDetails() {
 
     // Go through circuits on each Site
     console.log(
-      `     --- Circuits[] (collection of chargers sharing same fuse)  ---`,
+      `     --- Circuits[] (collection of chargers sharing same fuse), part of "easee.getSite(site.id)" ---`,
     )
     for (let circuit of siteDetail.circuits) {
       console.log(
