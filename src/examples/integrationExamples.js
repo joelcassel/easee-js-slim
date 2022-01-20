@@ -22,17 +22,20 @@ async function printConfigDetails() {
     onlyOneSiteId: onlyOneSiteId,
     onlyOneCircuitId: onlyOneCircuitId,
   })
+  console.log('Started!')
+
+  //Set the debug flag which will cause all requests to be printed
+  // process.env.EASEE_DEBUG='true'
 
   // Init and log in to the easee cloud API
-  console.log('Started!')
   await easee.initAccessToken()
   console.log('Logged in')
 
-  // List all chargers
-  const chargers = await easee.getChargers()
-  chargers.forEach((charger) =>
-    console.log(`--- Charger: ${charger.name} (${charger.id})`),
-  )
+  //List all chargers
+  //const chargers = await easee.getChargers()
+  //chargers.forEach((charger) =>
+  //  console.log(`--- Charger: ${charger.name} (${charger.id})`),
+  //)
 
   //const chargerDetails = await easee.getChargerDetails()
   //console.log(JSON.stringify(chargerDetails, null, 2))
@@ -64,6 +67,16 @@ async function printConfigDetails() {
   //const conf = await easee.getChargerConfig()
   //console.log(JSON.stringify(conf, null, 2))
 
+  //const startResponse = await easee.startCharging()
+  //console.log(JSON.stringify(startResponse, null, 2))
+
+  const stateResponse = await easee.getChargerState()
+  console.log(JSON.stringify(stateResponse, null, 2))
+  if(stateResponse.circuitTotalPhaseConductorCurrentL1 > 1 ) {
+    console.log('Currently charging')
+  } else {
+    console.log('Not charging')
+  }
 }
 
 //Needs an async function to use async

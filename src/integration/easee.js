@@ -12,10 +12,17 @@ export class Easee {
     this.username = username
     this.password = password
     this.onlyOneChargerId =
-      customData.onlyOneChargerId || process.env.EASEE_CHARGERID
-    this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID
+      customData.onlyOneChargerId ||
+      process.env.EASEE_CHARGERID ||
+      '--NOT_SET_CHARGERID--'
+    this.onlyOneSiteId =
+      customData.onlyOneSiteId ||
+      process.env.EASEE_SITEID ||
+      '--NOT_SET_SITEID--'
     this.onlyOneCircuitId =
-      customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID
+      customData.onlyOneCircuitId ||
+      process.env.EASEE_CIRCUITID ||
+      '--NOT_SET_CIRCUITID--'
   }
 
   async initAccessToken() {
@@ -39,7 +46,7 @@ export class Easee {
         console.error(
           'Could not get access Token from login, verify your login and credentials..',
         )
-        log(error.response.data)
+        logRequestError(error)
         process.exit(1)
       })
     this.accessToken = response.data.accessToken
@@ -62,7 +69,8 @@ export class Easee {
   async easeeGetCall(endpoint) {
     log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
-      log(error)
+      logRequestError(error)
+      return {}
     })
     log(`Response:\n`, data)
     return data
@@ -73,20 +81,21 @@ export class Easee {
     const response = await axios
       .post(apiUrl + endpoint, jsonBodyObject)
       .catch(function (error) {
-        log(error)
+        logRequestError(error)
+        return {}
       })
-    log(`Response:\n`, data)
+    log(`Response:\n`, response)
     return response
   }
 
   // Helper to send the "command" to a charger
   async easeeChargerCommand(chargerId = this.onlyOneChargerId, command) {
-    if (!command) {
-      log('No command is present, skipping..')
+    if (!command || !chargerId) {
+      log('ChargerId or command is not present, skipping..')
       return
     }
     const response = await this.easeePostCall(
-      `/api//chargers/${chargerId}/commands/${command}`,
+      `/api/chargers/${chargerId}/commands/${command}`,
     )
     return summarizeUpdateResult(response)
   }
@@ -121,6 +130,12 @@ export class Easee {
     return response
   }
 
+  // https://developer.easee.cloud/reference/get_api-chargers-id-state
+  async getChargerState(chargerId = this.onlyOneChargerId) {
+    const response = await this.easeeGetCall(`/api/chargers/${chargerId}/state`)
+    return response
+  }
+
   // https://developer.easee.cloud/reference/get_api-sites
   async getSites() {
     const response = await this.easeeGetCall(`/api/sites`)
@@ -146,22 +161,22 @@ export class Easee {
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-commands-start-charging
   async startCharging(chargerId = this.onlyOneChargerId) {
-    return easeeChargerCommand(chargerId, 'start_charging')
+    return this.easeeChargerCommand(chargerId, 'start_charging')
   }
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-commands-stop-charging
   async stopCharging(chargerId = this.onlyOneChargerId) {
-    return easeeChargerCommand(chargerId, 'stop_charging')
+    return this.easeeChargerCommand(chargerId, 'stop_charging')
   }
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-commands-pause-charging
   async pauseCharging(chargerId = this.onlyOneChargerId) {
-    return easeeChargerCommand(chargerId, 'pause_charging')
+    return this.easeeChargerCommand(chargerId, 'pause_charging')
   }
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-commands-resume-charging
   async resumeCharging(chargerId = this.onlyOneChargerId) {
-    return easeeChargerCommand(chargerId, 'resume_charging')
+    return this.easeeChargerCommand(chargerId, 'resume_charging')
   }
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-settings
@@ -194,6 +209,16 @@ function log(...args) {
   if (process.env.EASEE_DEBUG === 'true') {
     console.log(...args)
   }
+}
+
+function logRequestError(error) {
+  console.log('---------API ERROR----------')
+  console.log(`URL: (${error?.request?.method}) ${error?.config?.url}`)
+  console.log(`Request body: ${error?.config?.data}`)
+  console.log(
+    `Response status: ${error?.response?.status} (${error?.response?.statusText})`,
+  )
+  console.log('-------------------')
 }
 
 function summarizeUpdateResult(response) {
