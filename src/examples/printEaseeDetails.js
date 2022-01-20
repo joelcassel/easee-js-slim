@@ -1,12 +1,26 @@
 import { Easee } from '../integration/easee.js'
 
+/**
+ * This is a basic helper to read important config information from your existing charger(s)
+ * Run this the first time to get started on your site info.
+ * 
+ * It prints some summaries, and then returns EASEE_CHARGERID, EASEE_SITEID and EASEE_CIRCUITID and prints it.
+ * 
+ * if you set the env EASEE_DEBUG="true", all API calls will be printed
+ * 
+ * Note that this operation is only a simple read and can be runned as many times as you like, 
+ * there are no changes involved.
+ * 
+ */
+
+
 async function getConfigDetails() {
   //These are mandatory to set
   const username = process.env.EASEE_USERNAME
   const password = process.env.EASEE_PASSWORD
   if (!username || !password) {
     console.warn(
-      'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit this file directly',
+      'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit this file directly (src/examples/printEaseeDetails.js)',
     )
     process.exit(1)
   }
@@ -38,7 +52,7 @@ async function getConfigDetails() {
   console.log('\n\n---- Listing sites and details "easee.getSites()" ----')
   for (let site of sites) {
     console.log(
-      `   --- Site: ${site.name}, SiteID: ${site.id},  "easee.getSite(site.id)" --- `,
+      `   --- Site: ${site.name}, SiteID: ${site.id},  "easee.getSites()[n]" --- `,
     )
     collectedIdInfo.siteId = site.id
     // Get detailed info on the Site
@@ -63,9 +77,12 @@ async function getConfigDetails() {
       console.log(`         - UseDynamicMaster: ${circuit.useDynamicMaster}`)
 
       // Print circuit-current details
-      const circuitDetailsResponse = await easee.getCircuit(site.id, circuit.id)
+      const circuitDetailsResponse = await easee.getCircuitSettings(
+        site.id,
+        circuit.id,
+      )
       console.log(
-        `         --- Charging-info for circuit (${circuit.id}) "easee.getCircuit(site.id, circuit.id)" ---- `,
+        `         --- Charging-info for circuit (${circuit.id}) "easee.getCircuitSettings(site.id, circuit.id)" ---- `,
       )
       // simple solution to print all with correct indentation
       for (let circuitDetailKey in circuitDetailsResponse) {

@@ -10,11 +10,17 @@ const onlyOneSiteId = process.env.EASEE_SITEID || '123456'
 const onlyOneCircuitId = process.env.EASEE_CIRCUITID || '123456'
 
 
+/**
+ * This is a simplified example file to take examples from. 
+ *   
+ * For ease of use run `npm run printEaseeDetails` first to get needed env params
+ * 
+ */
 async function printConfigDetails() {
   const easee = new Easee(username, password, {
     onlyOneChargerId: onlyOneChargerId,
     onlyOneSiteId: onlyOneSiteId,
-    onlyOneCircuitId: onlyOneCircuitId
+    onlyOneCircuitId: onlyOneCircuitId,
   })
 
   // Init and log in to the easee cloud API
@@ -28,16 +34,11 @@ async function printConfigDetails() {
     console.log(`--- Charger: ${charger.name} (${charger.id})`),
   )
 
-  //Get details for first [0] charger
-  console.log(`Getting details for charger [0]....`)
-  console.log(`If this is your only charger you can set env by "export EASEE_CHARGERID=${chargers[0].id}" and it will default Id on all coming operations.`)
-  const chargerDetails = await easee.getChargerDetails(chargers[0].id)
-  console.log(chargerDetails)
+  //const chargerDetails = await easee.getChargerDetails()
+  //console.log(JSON.stringify(chargerDetails, null, 2))
 
-  /*
-    const schedule = await getWeeklySchedule()
-    console.log(JSON.stringify(schedule, null, 2));
-    */
+  //const schedule = await getWeeklySchedule()
+  //console.log(JSON.stringify(schedule, null, 2));
 
   //const sites = await easee.getSites()
   //console.log(JSON.stringify(sites, null, 2))
@@ -45,31 +46,24 @@ async function printConfigDetails() {
   //const site = await easee.getSite()
   //console.log(JSON.stringify(site, null, 2))
 
-  //const circuit = await easee.getCircuit()
+  //const circuit = await easee.getCircuitSettings()
   //console.log(JSON.stringify(circuit, null, 2))
-  
-  const circuitUpdate = { 
-    maxCircuitCurrentP1: 10, 
-    maxCircuitCurrentP2: 10, 
-    maxCircuitCurrentP3: 10,
-    offlineMaxCircuitCurrentP1: 10,
-    offlineMaxCircuitCurrentP2: 10,
-    offlineMaxCircuitCurrentP3: 10,
-  }
-  //const setCircuitResp = await easee.updateCircuitSettings(circuitUpdate)
+
+  // Change max charging and default Amps to 10A
+  // const circuitUpdate = {
+  //   maxCircuitCurrentP1: 10,
+  //   maxCircuitCurrentP2: 10,
+  //   maxCircuitCurrentP3: 10,
+  //   offlineMaxCircuitCurrentP1: 10,
+  //   offlineMaxCircuitCurrentP2: 10,
+  //   offlineMaxCircuitCurrentP3: 10,
+  // }
+  //const setCircuitResp = await easee.setCircuitSettings(circuitUpdate)
   //console.log(JSON.stringify(setCircuitResp, null, 2))
 
+  //const conf = await easee.getChargerConfig()
+  //console.log(JSON.stringify(conf, null, 2))
 
-  // Get config using global env var as charger ID
-  if(onlyOneChargerId){
-    const conf = await easee.getChargerConfig()
-    console.log(JSON.stringify(conf, null, 2))
-  }
- 
-
-  const circuit = await easee.getCircuit()
-  console.log(JSON.stringify(circuit, null, 2))
-  
 }
 
 //Needs an async function to use async
