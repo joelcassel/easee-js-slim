@@ -1,6 +1,6 @@
 # Slim API abstraction for Easee EV charging stations
 
-- Handy command abstraction and simple examples
+- Handy command abstraction and simple examples for NodeJs and Server implementations
 - Uses **Axios** for access.
 - You need an account created on Easee Cloud (https://easee.cloud/auth/signup)
 - Details on the Easee API is on https://developer.easee.cloud/docs/get-started

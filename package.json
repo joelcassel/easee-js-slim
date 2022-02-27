@@ -11,6 +11,15 @@
   },
   "author": "Joel Cassel",
   "license": "MIT",
+  "keywords": [
+    "EV charging",
+    "Nodejs",
+    "Easee API",
+    "Home charger",
+    "Smart charging",
+    "Easee",
+    "Home automation"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/joelcassel/easee-js-slim.git"
