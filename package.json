@@ -1,7 +1,7 @@
 {
   "name": "easee-js-slim",
-  "version": "0.2.0",
-  "description": "Easee EV charger simple API ",
+  "version": "0.2.1",
+  "description": "Easee EV charger simple API for Node and server integrations",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
