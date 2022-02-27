@@ -44,6 +44,7 @@ Simplest way:
 
 1. `npm install -save easee-js-slim` to install the package to your project
 2. Set the login variables in your `ENV` _(or pass them as parameters, look in the code)_
+   Here is some example code to get you started
 
 ```javascript
 import Easee from 'easee-js-slim'
@@ -106,3 +107,4 @@ easee.setCircuitSettings(circuitUpdate)
 - All Contributions/PRs are happily accepted
 - The API-Access-Token is not refreshed based on time, so you need to re-issue it now and then if you have a constant connection.
 - Even though this is a proxy-API, NO GUARANTEES are given, and you can probably screw up your Easee box by sending strange manual commands
+- Uses modules / async and imports
