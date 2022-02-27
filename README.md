@@ -18,7 +18,6 @@ Simplest way:
 
 1. Register your account and charger in the "Easee" app, or at https://easee.cloud/auth/signup.
 1. Set the your Easee account `username` and `password` as environment variables:
-
    ```bash
    Linux:
        export EASEE_USERNAME=youremal@domain.com
@@ -26,4 +25,15 @@ Simplest way:
    Windows:
        set EASEE_USERNAME=youremal@domain.com
        set EASEE_PASSWORD=Password123
+   ```
+1. Run `npm run printEaseeDetails` this will log in and print the nested details. It will print a lot of details and summarize with your IDs example:
+
+   ```
+        It seems you have only one charger and setup.
+        For convenience you can then pre-set all as env-variables and the API will use the default.
+
+        export EASEE_CHARGERID='EH2AABCD'
+        export EASEE_SITEID='1234567'
+        export EASEE_CIRCUITID='123456'
+        export EASEE_DEBUG=false
    ```
