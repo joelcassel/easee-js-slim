@@ -43,7 +43,7 @@ Simplest way:
 ## Making use of the framework
 
 1. `npm install -save easee-js-slim` to install the package to your project
-2. Set the needed login env-variables (or pass them as parameters)
+2. Set the login variables in your `ENV` _(or pass them as parameters, look in the code)_
 
 ```javascript
 import Easee from 'easee-js-slim'
