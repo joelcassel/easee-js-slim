@@ -26,7 +26,8 @@ Simplest way:
        set EASEE_USERNAME=youremal@domain.com
        set EASEE_PASSWORD=Password123
    ```
-1. Clone the repo and run `npm run printEaseeDetails`... This will log in and print the nested details. It will print a lot of details and summarize with your IDs example:
+1. As a one-time thing, run `node node_modules/easee-js-slim/src/examples/printEaseeDetails.js`
+   ... This will log in and print the complicated nested details. It will print a lot of details and summarize with your IDs example:
 
    ```
         ..
