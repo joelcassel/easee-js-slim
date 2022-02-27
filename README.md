@@ -48,20 +48,20 @@ Simplest way:
 ```javascript
 import Easee from 'easee-js-slim'
 
-async function chargerExample() {
-  const charger = new Easee()
+async function easeeExample() {
+  const easee = new Easee()
   //Log in and set access token
-  await charger.initAccessToken()
+  await easee.initAccessToken()
 
   //Print the charger-state info
-  const state = await charger.getChargerState()
+  const state = await easee.getChargerState()
   console.log(state)
 
   //Stop Charging (if started)
-  const response = await charger.stopCharging()
+  const response = await easee.stopCharging()
   console.log(response)
 }
-chargerExample()
+easeeExample()
 ```
 
 ## API and Documentation
