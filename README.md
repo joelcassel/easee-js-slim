@@ -21,9 +21,9 @@ Simplest way:
 
    ```bash
    Linux:
-       export EASEE_USERNAME=youremal@doman.com
+       export EASEE_USERNAME=youremal@domain.com
        export EASEE_PASSWORD=Password123
    Windows:
-       set EASEE_USERNAME=youremal@doman.com
+       set EASEE_USERNAME=youremal@domain.com
        set EASEE_PASSWORD=Password123
    ```
