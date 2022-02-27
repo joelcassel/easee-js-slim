@@ -71,7 +71,38 @@ chargerExample()
 - Look at `src/integration/easee.js` where all functions are easy to read in the code
 - Read the official API on https://developer.easee.cloud/docs/get-started for more details
 
+### Quick refference
+
+Here are some of the functions. JSON-setting-functions takes partial objects, see the official API doc on https://developer.easee.cloud/docs/
+
+```javascript
+await easee.initAccessToken()
+const chargers = await easee.getChargers()
+const chargerDetails = await easee.getChargerDetails()
+const conf = await easee.getChargerConfig()
+const schedule = await getWeeklySchedule()
+const sites = await easee.getSites()
+const site = await easee.getSite()
+const circuit = await easee.getCircuitSettings()
+easee.pauseCharging()
+easee.resumeCharging()
+easee.stopCharging()
+easee.startCharging()
+
+//Example: Change max charging and default Amps to 10A
+const circuitUpdate = {
+  maxCircuitCurrentP1: 10,
+  maxCircuitCurrentP2: 10,
+  maxCircuitCurrentP3: 10,
+  offlineMaxCircuitCurrentP1: 10,
+  offlineMaxCircuitCurrentP2: 10,
+  offlineMaxCircuitCurrentP3: 10,
+}
+easee.setCircuitSettings(circuitUpdate)
+```
+
 ## General information and known issues
 
 - All Contributions/PRs are happily accepted
-- The API-Access-Token is not refreshed based on time, so you need to refresh it on an interval
+- The API-Access-Token is not refreshed based on time, so you need to re-issue it now and then if you have a constant connection.
+- Even though this is a proxy-API, NO GUARANTEES are given, and you can probably screw up your Easee box by sending strange manual commands
