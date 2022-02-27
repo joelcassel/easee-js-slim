@@ -26,9 +26,11 @@ Simplest way:
        set EASEE_USERNAME=youremal@domain.com
        set EASEE_PASSWORD=Password123
    ```
-1. Run `npm run printEaseeDetails` this will log in and print the nested details. It will print a lot of details and summarize with your IDs example:
+1. Run `npm run printEaseeDetails`... This will log in and print the nested details. It will print a lot of details and summarize with your IDs example:
 
    ```
+        ..
+        ....
         It seems you have only one charger and setup.
         For convenience you can then pre-set all as env-variables and the API will use the default.
 
