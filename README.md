@@ -63,3 +63,15 @@ async function chargerExample() {
 }
 chargerExample()
 ```
+
+## API and Documentation
+
+(Will be updated eventually)
+
+- Look at `src/integration/easee.js` where all functions are easy to read in the code
+- Read the official API on https://developer.easee.cloud/docs/get-started for more details
+
+## General information and known issues
+
+- All Contributions/PRs are happily accepted
+- The API-Access-Token is not refreshed based on time, so you need to refresh it on an interval
