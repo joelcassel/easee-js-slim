@@ -1,20 +1,12 @@
 import { Easee } from '../integration/easee.js'
 
-export class Charging {
-  constructor(
-    username = process.env.EASEE_USERNAME,
-    password = process.env.EASEE_PASSWORD,
-    customData = {},
-  ) {
-    this.easee = new Easee(
-      process.env.EASEE_USERNAME,
-      process.env.EASEE_PASSWORD,
-    )
-  } 
+export class Charger {
+  constructor() {
+    this.easee = new Easee()
+    this.init()
+  }
 
-  async init(){
-    // Init and log in to the easee cloud API
-    console.log('Started!')
+  async init() {
     await this.easee.initAccessToken()
     console.log('Logged in')
   }
@@ -29,4 +21,3 @@ export class Charging {
     return stateResponse
   }
 }
-

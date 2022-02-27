@@ -2,12 +2,12 @@
   "name": "easee-js-slim",
   "version": "1.0.0",
   "description": "Easee EV charger simple API ",
-  "main": "src/easee.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run printEaseeDetails",
-    "printEaseeDetails": "node src/examples/printEaseeDetails.js", 
+    "printEaseeDetails": "node src/examples/printEaseeDetails.js",
     "debug": "node --inspect integrationExample.js"
   },
   "author": "Joel Cassel",
@@ -17,7 +17,7 @@
     "url": "https://github.com/joelcassel/easee-js-slim.git"
   },
   "dependencies": {
-    "axios": "^0.25.0"
+    "axios": "^0.26.0"
   },
   "devDependencies": {
     "prettier": "2.5.1"
