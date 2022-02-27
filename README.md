@@ -39,3 +39,27 @@ Simplest way:
         export EASEE_CIRCUITID='123456'
         export EASEE_DEBUG=false
    ```
+
+## Making use of the framework
+
+1. `npm install -save easee-js-slim` to install the package to your project
+2. Set the needed login env-variables (or pass them as parameters)
+
+```javascript
+import Easee from 'easee-js-slim'
+
+async function chargerExample() {
+  const charger = new Easee()
+  //Log in and set access token
+  await charger.initAccessToken()
+
+  //Print the charger-state info
+  const state = await charger.getChargerState()
+  console.log(state)
+
+  //Stop Charging (if started)
+  const response = await charger.stopCharging()
+  console.log(response)
+}
+chargerExample()
+```
