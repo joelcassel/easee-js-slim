@@ -179,6 +179,11 @@ export class Easee {
     return this.easeeChargerCommand(chargerId, 'resume_charging')
   }
 
+  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-override-schedule
+  async overrideChargingSchedule(chargerId = this.onlyOneChargerId) {
+    return this.easeeChargerCommand(chargerId, 'override_schedule')
+  }
+
   // https://developer.easee.cloud/reference/post_api-chargers-id-settings
   async updateChargerSettings(
     settingsJsonObjToUpdate = {},
