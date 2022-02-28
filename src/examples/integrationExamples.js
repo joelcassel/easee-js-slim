@@ -9,12 +9,11 @@ const onlyOneChargerId = process.env.EASEE_CHARGERID || 'ABBXXXXX'
 const onlyOneSiteId = process.env.EASEE_SITEID || '123456'
 const onlyOneCircuitId = process.env.EASEE_CIRCUITID || '123456'
 
-
 /**
- * This is a simplified example file to take examples from. 
- *   
+ * This is a simplified example file to take examples from.
+ *
  * For ease of use run `npm run printEaseeDetails` first to get needed env params
- * 
+ *
  */
 async function printConfigDetails() {
   const easee = new Easee(username, password, {
@@ -70,9 +69,12 @@ async function printConfigDetails() {
   //const startResponse = await easee.startCharging()
   //console.log(JSON.stringify(startResponse, null, 2))
 
+  //const startOrResumeResponse = await easee.startOrResumeCharging()
+  //console.log(JSON.stringify(startOrResumeResponse, null, 2))
+
   const stateResponse = await easee.getChargerState()
   console.log(JSON.stringify(stateResponse, null, 2))
-  if(stateResponse.circuitTotalPhaseConductorCurrentL1 > 1 ) {
+  if (stateResponse.circuitTotalPhaseConductorCurrentL1 > 1) {
     console.log('Currently charging')
   } else {
     console.log('Not charging')
@@ -80,4 +82,4 @@ async function printConfigDetails() {
 }
 
 //Needs an async function to use async
-printConfigDetails();
+printConfigDetails()

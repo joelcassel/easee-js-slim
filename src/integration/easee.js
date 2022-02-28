@@ -1,4 +1,5 @@
 import axios from 'axios'
+import reasonForNoCurrent from './reasonForNoCurrent.js'
 
 // API Details for Easee : https://developer.easee.cloud/docs/get-started
 const apiUrl = 'https://api.easee.cloud'
@@ -182,6 +183,38 @@ export class Easee {
   // https://developer.easee.cloud/reference/post_api-chargers-id-commands-override-schedule
   async overrideChargingSchedule(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'override_schedule')
+  }
+
+  //Go-Charging helper-function to Start, resume or overrideSchedule (just make it happen..)
+  async startOrResumeCharging(chargerId = this.onlyOneChargerId) {
+    console.log('Just starting')
+    //Get charging state
+    const result = await this.getChargerState(chargerId)
+    if (result.reasonForNoCurrent === reasonForNoCurrent.OK) {
+      return { status: 'No action', message: 'Charging already started' }
+    } else if (
+      result.reasonForNoCurrent === reasonForNoCurrent.WaitingInFully
+    ) {
+      return {
+        status: 'No action',
+        message: 'EV is fully charged or not accepting a start (schedule?)',
+      }
+    } else if (
+      result.reasonForNoCurrent ===
+      reasonForNoCurrent.SecondaryUnitNotRequestingCurrent
+    ) {
+      return { status: 'No action', message: 'EV is Not connected' }
+    } else if (
+      result.reasonForNoCurrent === reasonForNoCurrent.PendingScheduledCharging
+    ) {
+      //If blocked by schedule
+      console.log('Overriding schedule stop')
+      return this.overrideChargingSchedule(chargerId)
+    } else {
+      //other reasons
+      console.log('Starting')
+      return this.startCharging(chargerId)
+    }
   }
 
   // https://developer.easee.cloud/reference/post_api-chargers-id-settings
