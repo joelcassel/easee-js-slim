@@ -90,6 +90,8 @@ easee.pauseCharging()
 easee.resumeCharging()
 easee.stopCharging()
 easee.startCharging()
+//Go-Charging helper-function to Start, resume or overrideSchedule (just make it happen..)
+easee.startOrResumeCharging()
 
 //Example: Change max charging and default Amps to 10A
 const circuitUpdate = {
