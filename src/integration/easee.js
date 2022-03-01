@@ -186,7 +186,10 @@ export class Easee {
   }
 
   //Go-Charging helper-function to Start, resume or overrideSchedule (just make it happen..)
-  async startOrResumeCharging(chargerId = this.onlyOneChargerId) {
+  async startOrResumeCharging(
+    chargerId = this.onlyOneChargerId,
+    recursive = 0,
+  ) {
     console.log('Just starting')
     //Get charging state
     const result = await this.getChargerState(chargerId)
@@ -210,6 +213,18 @@ export class Easee {
       //If blocked by schedule
       console.log('Overriding schedule stop')
       return this.overrideChargingSchedule(chargerId)
+    } else if (
+      result.reasonForNoCurrent ===
+      reasonForNoCurrent.MaxDynamicChargerCurrentTooLow
+    ) {
+      //If paused: Resume -> Pause 5s -> (re-start and Check if blocked by schedule)
+      console.log('Resuming after pause')
+      const resumeResult = await this.resumeCharging(chargerId)
+      await new Promise((r) => setTimeout(r, 5000))
+      if (recursive === 1) {
+        return resumeResult
+      }
+      return this.startOrResumeCharging(chargerId, recursive++)
     } else {
       //other reasons
       console.log('Starting')
