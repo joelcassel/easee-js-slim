@@ -121,16 +121,16 @@ For convenience you can then pre-set all as env-variables and the API will use t
 export EASEE_CHARGERID='${collectedIds.chargerId}'
 export EASEE_SITEID='${collectedIds.siteId}'
 export EASEE_CIRCUITID='${collectedIds.circuitId}'
-export EASEE_DEBUG=false
+export EASEE_DEBUG=true
 ----
 ---- Windows env:
 set EASEE_CHARGERID=${collectedIds.chargerId}
 set EASEE_SITEID=${collectedIds.siteId}
 set EASEE_CIRCUITID=${collectedIds.circuitId}
-set EASEE_DEBUG=false
+set EASEE_DEBUG=true
 ----
 
-Change the EASEE_DEBUG to 'true' and re-run this file, then all API call-results will be printed. 
+With EASEE_DEBUG=true all API call-results will be printed. 
 `)
 } else {
   console.log(collectedIds)

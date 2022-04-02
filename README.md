@@ -38,7 +38,7 @@ Simplest way:
         export EASEE_CHARGERID='EH2AABCD'
         export EASEE_SITEID='1234567'
         export EASEE_CIRCUITID='123456'
-        export EASEE_DEBUG=false
+        export EASEE_DEBUG=true
    ```
 
 ## Making use of the framework
@@ -108,6 +108,10 @@ easee.setCircuitSettings(circuitUpdate)
 ### Access token
 
 The `initAccessToken()` is not needed to run at start, but it is concidered good practice to validate the login on creation/startup. Currently the Easee API specifications do say the access-token expiry interval, so it is set to refresh on the first call after every 10 minutes. This can be overridden by setting the env `EASEE_TOKEN_INTERVAL` (in milliseconds) if needed.
+
+### Debug logging
+
+Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
 
 ## General information and known issues
 
