@@ -10,6 +10,13 @@ export class Easee {
     customData = {},
   ) {
     this.accessToken = null
+    this.tokenLastRefreshTime = null
+    this.tokenRefreshIntervalMillis =
+      parseInt(process.env.EASEE_TOKEN_INTERVAL) || 600 * 1000 // 10 minutes
+    log(
+      'Setting Token Refresh Interval in  Milliseconds:',
+      this.tokenRefreshIntervalMillis,
+    )
     this.username = username
     this.password = password
     this.onlyOneChargerId =
@@ -32,10 +39,6 @@ export class Easee {
         'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
       )
       process.exit(1)
-    }
-    if (this.accessToken) {
-      log('Reusing access token..')
-      resolve(this.accessToken)
     }
     log('Query new access token..')
     const response = await axios
@@ -64,10 +67,21 @@ export class Easee {
     axios.defaults.headers.common[
       'Authorization'
     ] = `Bearer ${this.accessToken}`
+    this.tokenLastRefreshTime = Date.now()
     return this.accessToken
   }
 
+  async refreshLoginIfNeeded() {
+    const oldToken =
+      Date.now() - this.tokenLastRefreshTime > this.tokenRefreshIntervalMillis
+    if (!this.accessToken || oldToken) {
+      log(`Refreshing access token..`)
+      return await this.initAccessToken()
+    }
+  }
+
   async easeeGetCall(endpoint) {
+    await this.refreshLoginIfNeeded()
     log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
       logRequestError(error)
@@ -78,6 +92,7 @@ export class Easee {
   }
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
+    await this.refreshLoginIfNeeded()
     log(`Calling POST ${endpoint} ...`)
     const response = await axios
       .post(apiUrl + endpoint, jsonBodyObject)

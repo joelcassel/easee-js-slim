@@ -73,7 +73,7 @@ easeeExample()
 - Look at `src/integration/easee.js` where all functions are easy to read in the code
 - Read the official API on https://developer.easee.cloud/docs/get-started for more details
 
-### Quick refference
+### Quick reference
 
 Here are some of the functions. JSON-setting-functions takes partial objects, see the official API doc on https://developer.easee.cloud/docs/
 
@@ -105,9 +105,12 @@ const circuitUpdate = {
 easee.setCircuitSettings(circuitUpdate)
 ```
 
+### Access token
+
+The `initAccessToken()` is not needed to run at start, but it is concidered good practice to validate the login on creation/startup. Currently the Easee API specifications do say the access-token expiry interval, so it is set to refresh on the first call after every 10 minutes. This can be overridden by setting the env `EASEE_TOKEN_INTERVAL` (in milliseconds) if needed.
+
 ## General information and known issues
 
 - All Contributions/PRs are happily accepted
-- The API-Access-Token is not refreshed based on time, so you need to re-issue it now and then if you have a constant connection.
 - Even though this is a proxy-API, NO GUARANTEES are given, and you can probably screw up your Easee box by sending strange manual commands
 - Uses modules / async and imports
