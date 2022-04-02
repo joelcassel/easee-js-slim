@@ -25,9 +25,9 @@
     "url": "https://github.com/joelcassel/easee-js-slim.git"
   },
   "dependencies": {
-    "axios": "^0.26.0"
+    "axios": "^0.26.1"
   },
   "devDependencies": {
-    "prettier": "2.5.1"
+    "prettier": "2.6.1"
   }
 }
