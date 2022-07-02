@@ -1,6 +1,6 @@
 {
   "name": "easee-js-slim",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Easee EV charger simple API for Node and server integrations",
   "main": "src/index.js",
   "type": "module",
@@ -25,9 +25,9 @@
     "url": "https://github.com/joelcassel/easee-js-slim.git"
   },
   "dependencies": {
-    "axios": "^0.26.1"
+    "axios": "^0.27.2"
   },
   "devDependencies": {
-    "prettier": "2.6.1"
+    "prettier": "2.7.1"
   }
 }
