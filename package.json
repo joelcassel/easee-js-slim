@@ -1,9 +1,10 @@
 {
   "name": "easee-js-slim",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Easee EV charger simple API for Node and server integrations",
   "main": "src/index.js",
   "type": "module",
+  "readme": "README.md",
   "scripts": {
     "start": "npm run printEaseeDetails",
     "printEaseeDetails": "node src/examples/printEaseeDetails.js",

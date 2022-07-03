@@ -79,6 +79,10 @@ async function printConfigDetails() {
   } else {
     console.log('Not charging')
   }
+
+  const isConnected =  await easee.isEVCableConnected()
+  console.log(`Cable is connected: ${isConnected}`)
+
 }
 
 //Needs an async function to use async

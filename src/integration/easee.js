@@ -1,5 +1,6 @@
 import axios from 'axios'
 import reasonForNoCurrent from './reasonForNoCurrent.js'
+import chargerOpMode from './chargerOpMode.js'
 
 // API Details for Easee : https://developer.easee.cloud/docs/get-started
 const apiUrl = 'https://api.easee.cloud'
@@ -270,6 +271,19 @@ export class Easee {
       settingsJsonObjToUpdate,
     )
     return summarizeUpdateResult(response)
+  }
+  
+  // Helper function to see if you forgot to connect the cable
+  async isEVCableConnected(chargerId = this.onlyOneChargerId) {
+    const status = await this.getChargerState(chargerId) 
+    switch(status){
+      case chargerOpMode.Offline:
+      case chargerOpMode.Disconnected: 
+      case chargerOpMode.Error:
+        return false;
+      default: 
+        return true;
+    }
   }
 }
 
