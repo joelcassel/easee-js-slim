@@ -108,7 +108,7 @@ easee.setCircuitSettings(circuitUpdate)
 
 ### Access token
 
-The `initAccessToken()` is not needed to run at start, but it is concidered good practice to validate the login on creation/startup. Currently the Easee API specifications do say the access-token expiry interval, so it is set to refresh on the first call after every 10 minutes. This can be overridden by setting the env `EASEE_TOKEN_INTERVAL` (in milliseconds) if needed.
+The `initAccessToken()` is not needed to run at start, but it is considered good practice to validate the login on creation/startup. Currently the Easee API specifications do not say the access-token expiry interval, so it is set to refresh on the first call after every 10 minutes. This can be overridden by setting the env `EASEE_TOKEN_INTERVAL` (in milliseconds) if needed.
 
 ### Debug logging
 

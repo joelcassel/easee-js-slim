@@ -273,10 +273,15 @@ export class Easee {
     return summarizeUpdateResult(response)
   }
   
-  // Helper function to see if you forgot to connect the cable
+  // Helper function to see if you forgot to connect the cable, or if there are errors.
   async isEVCableConnected(chargerId = this.onlyOneChargerId) {
     const status = await this.getChargerState(chargerId) 
-    switch(status){
+    log(`IsEVCableConnected cableLocked: ${status?.cableLocked}`)
+    if(!status || !status.cableLocked){
+      return false;
+    }
+    log(`IsEVCableConnected chargerOpMode: ${status.chargerOpMode}, .. see chargerOpMode.js`)
+    switch(status.chargerOpMode){
       case chargerOpMode.Offline:
       case chargerOpMode.Disconnected: 
       case chargerOpMode.Error:
