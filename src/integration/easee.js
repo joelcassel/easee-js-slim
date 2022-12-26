@@ -277,7 +277,7 @@ export class Easee {
   async isEVCableConnected(chargerId = this.onlyOneChargerId) {
     const status = await this.getChargerState(chargerId) 
     log(`IsEVCableConnected cableLocked: ${status?.cableLocked}`)
-    if(!status || !status.cableLocked){
+    if(!status){
       return false;
     }
     log(`IsEVCableConnected chargerOpMode: ${status.chargerOpMode}, .. see chargerOpMode.js`)
@@ -286,6 +286,10 @@ export class Easee {
       case chargerOpMode.Disconnected: 
       case chargerOpMode.Error:
         return false;
+      case chargerOpMode.AwaitingStart:
+      case chargerOpMode.Charging:
+      case chargerOpMode.Completed:
+      case chargerOpMode.ReadyToCharge:
       default: 
         return true;
     }
