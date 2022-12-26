@@ -8,6 +8,7 @@
   "scripts": {
     "start": "npm run printEaseeDetails",
     "printEaseeDetails": "node src/examples/printEaseeDetails.js",
+    "integrationExample": "node src/examples/integrationExamples.js",
     "debug": "node --inspect integrationExample.js"
   },
   "author": "Joel Cassel",
@@ -26,9 +27,9 @@
     "url": "https://github.com/joelcassel/easee-js-slim.git"
   },
   "dependencies": {
-    "axios": "^0.27.2"
+    "axios": "^1.2.1"
   },
   "devDependencies": {
-    "prettier": "2.7.1"
+    "prettier": "2.8.1"
   }
 }
