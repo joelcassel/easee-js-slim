@@ -11,13 +11,7 @@ export class Easee {
     customData = {},
   ) {
     this.accessToken = null
-    this.tokenLastRefreshTime = null
-    this.tokenRefreshIntervalMillis =
-      parseInt(process.env.EASEE_TOKEN_INTERVAL) || 600 * 1000 // 10 minutes
-    log(
-      'Setting Token Refresh Interval in  Milliseconds:',
-      this.tokenRefreshIntervalMillis,
-    )
+    this.refreshToken = null
     this.username = username
     this.password = password
     this.onlyOneChargerId =
@@ -34,26 +28,44 @@ export class Easee {
       '--NOT_SET_CIRCUITID--'
   }
 
-  async initAccessToken() {
+  async initAccessToken(refreshToken = null) {
     if (!this.username || !this.password) {
       console.warn(
         'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
       )
       process.exit(1)
     }
-    log('Query new access token..')
-    const response = await axios
-      .post(apiUrl + '/api/accounts/token', {
-        userName: this.username,
-        password: this.password,
-      })
-      .catch(function (error) {
-        console.error(
-          'Could not get access Token from login, verify your login and credentials..',
-        )
-        logRequestError(error)
-        process.exit(1)
-      })
+    let response
+    if (!refreshToken) {
+      log('Query new access token..')
+      response = await axios
+        .post(apiUrl + '/api/accounts/login', {
+          userName: this.username,
+          password: this.password,
+        })
+        .catch(function (error) {
+          console.error(
+            'Could not get access Token from login, verify your login and credentials..',
+          )
+          logRequestError(error)
+          process.exit(1)
+        })
+    } else {
+      log('Query new access token with refresh token..')
+      response = await axios
+        .post(apiUrl + '/api/accounts/refresh_token', {
+          userName: this.accessToken,
+          password: this.refreshToken,
+        })
+        .catch(function (error) {
+          console.error(
+            'Could not get access Token from login, verify your login and credentials..',
+          )
+          logRequestError(error)
+          process.exit(1)
+        })
+    }
+
     this.accessToken = response.data.accessToken
     if (!this.accessToken) {
       console.error(
@@ -65,24 +77,21 @@ export class Easee {
 
     //Set global token for next calls
     log('Token retrieved..')
+    log(response.data)
     axios.defaults.headers.common[
       'Authorization'
     ] = `Bearer ${this.accessToken}`
-    this.tokenLastRefreshTime = Date.now()
+
+    // Refresh token 1 minute before it expires
+    setTimeout(async () => {
+      log('Refreshing token..')
+      await this.initAccessToken(this.refreshToken)
+    }, response.data.expiresIn * 1000 - 60000) // 1 minute before expiration
+
     return this.accessToken
   }
 
-  async refreshLoginIfNeeded() {
-    const oldToken =
-      Date.now() - this.tokenLastRefreshTime > this.tokenRefreshIntervalMillis
-    if (!this.accessToken || oldToken) {
-      log(`Refreshing access token..`)
-      return await this.initAccessToken()
-    }
-  }
-
   async easeeGetCall(endpoint) {
-    await this.refreshLoginIfNeeded()
     log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
       logRequestError(error)
@@ -93,7 +102,6 @@ export class Easee {
   }
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
-    await this.refreshLoginIfNeeded()
     log(`Calling POST ${endpoint} ...`)
     const response = await axios
       .post(apiUrl + endpoint, jsonBodyObject)
@@ -272,26 +280,28 @@ export class Easee {
     )
     return summarizeUpdateResult(response)
   }
-  
+
   // Helper function to see if you forgot to connect the cable, or if there are errors.
   async isEVCableConnected(chargerId = this.onlyOneChargerId) {
-    const status = await this.getChargerState(chargerId) 
+    const status = await this.getChargerState(chargerId)
     log(`IsEVCableConnected cableLocked: ${status?.cableLocked}`)
-    if(!status){
-      return false;
+    if (!status) {
+      return false
     }
-    log(`IsEVCableConnected chargerOpMode: ${status.chargerOpMode}, .. see chargerOpMode.js`)
-    switch(status.chargerOpMode){
+    log(
+      `IsEVCableConnected chargerOpMode: ${status.chargerOpMode}, .. see chargerOpMode.js`,
+    )
+    switch (status.chargerOpMode) {
       case chargerOpMode.Offline:
-      case chargerOpMode.Disconnected: 
+      case chargerOpMode.Disconnected:
       case chargerOpMode.Error:
-        return false;
+        return false
       case chargerOpMode.AwaitingStart:
       case chargerOpMode.Charging:
       case chargerOpMode.Completed:
       case chargerOpMode.ReadyToCharge:
-      default: 
-        return true;
+      default:
+        return true
     }
   }
 }
