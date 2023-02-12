@@ -1,0 +1,76 @@
+{
+  "isEnabled": true,
+  "tags": [],
+  "days": [
+    {
+      "dayOfWeek": 0,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 1,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 2,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 3,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 4,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 5,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    },
+    {
+      "dayOfWeek": 6,
+      "ranges": [
+        {
+          "startTime": "00:00",
+          "stopTime": "05:00",
+          "chargingCurrentLimit": 32
+        }
+      ]
+    }
+  ]
+}

@@ -281,6 +281,20 @@ export class Easee {
     return summarizeUpdateResult(response)
   }
 
+  // https://developer.easee.cloud/reference/post_api-chargers-id-weekly-charge-plan
+  //Warning: Poor validation at Easee, partial objects are not always good.
+  // If you manage to destroy your schedule object, there is an example in src/examples/weeklySchedule.json
+  async updateWeeklySchedule(
+    settingsJsonObjToUpdate = {},
+    chargerId = this.onlyOneChargerId,
+  ) {
+    const response = await this.easeePostCall(
+      `/api/chargers/${chargerId}/weekly_charge_plan`,
+      settingsJsonObjToUpdate,
+    )
+    return summarizeUpdateResult(response)
+  }
+
   // Helper function to see if you forgot to connect the cable, or if there are errors.
   async isEVCableConnected(chargerId = this.onlyOneChargerId) {
     const status = await this.getChargerState(chargerId)
