@@ -111,7 +111,7 @@ weeklySchedule.isEnabled = !weeklySchedule.isEnabled
 easee.updateWeeklySchedule(weeklySchedule)
 ```
 ### Schedule life-hack (inverted schedule) 
-Instead of starting, stopping pausing and handling all things manually you can set the schedule to something very low. Example enabled only on **1 minute at 3am on sunday** in your app. You can then toggle the schedule off to start charging, and toggle it off to stop charging using your external automation. Example to turn ON charging using the disabled Schedule is: 
+Instead of starting, stopping pausing and handling all things manually you can set the schedule to something super-low. Example: enable schedule only for **1 minute at 3am on sunday** in your easee-app. You can then toggle the schedule OFF to start charging, and toggle it ON to stop charging using your external automation scheduler. Example to turn ON charging using the disabled Schedule is: 
 ```javascript
 const weeklySchedule = await easee.getWeeklySchedule()
 weeklySchedule.isEnabled = false
