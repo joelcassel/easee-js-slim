@@ -33,7 +33,7 @@ export class Easee {
       console.warn(
         'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
       )
-      process.exit(1)
+      throw new Error('Missing credentials, cannot load EASEE_USERNAME & EASEE_PASSWORD')
     }
     let response
     if (!refreshToken) {
@@ -45,10 +45,10 @@ export class Easee {
         })
         .catch(function (error) {
           console.error(
-            'Could not get access Token from login, verify your login and credentials..',
+            'Could not query access Token from login, verify your login and credentials..',
           )
           logRequestError(error)
-          process.exit(1)
+          throw new Error('Could not query Easee access Token when doing login, verify your login and credentials.')
         })
     } else {
       log('Query new access token with refresh token..')
@@ -59,10 +59,10 @@ export class Easee {
         })
         .catch(function (error) {
           console.error(
-            'Could not get access Token from login, verify your login and credentials..',
+            'Could not query refresh access Token from login, verify your login and credentials..',
           )
           logRequestError(error)
-          process.exit(1)
+          throw new Error('Could not query Easee refresh access Token, verify your login and credentials.')
         })
     }
 
@@ -72,7 +72,7 @@ export class Easee {
         'Could not get access Token from login, verify your login and credentials',
       )
       console.error(JSON.stringify(response.data, null, 2))
-      process.exit(1)
+      throw new Error('Could not load Easee access Token, verify your login and credentials.')
     }
 
     //Set global token for next calls

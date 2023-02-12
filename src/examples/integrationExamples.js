@@ -72,6 +72,7 @@ async function printConfigDetails() {
   //const startOrResumeResponse = await easee.startOrResumeCharging()
   //console.log(JSON.stringify(startOrResumeResponse, null, 2))
 
+  /*
   const stateResponse = await easee.getChargerState()
   console.log(JSON.stringify(stateResponse, null, 2))
   if (stateResponse.circuitTotalPhaseConductorCurrentL1 > 1) {
@@ -79,10 +80,21 @@ async function printConfigDetails() {
   } else {
     console.log('Not charging')
   }
-
+  
   const isConnected =  await easee.isEVCableConnected()
   console.log(`Cable is connected: ${isConnected}`)
+  */
 
+  //const chargerDetails = await easee.getLastChargingSession()
+  //console.log(JSON.stringify(chargerDetails, null, 2)) 
+
+  /*
+  const profile = await easee.getProfile()
+  console.log(JSON.stringify(profile, null, 2)) 
+
+  const update = await easee.updateFirmware()
+  console.log(JSON.stringify(update, null, 2)) 
+*/
 }
 
 //Needs an async function to use async
