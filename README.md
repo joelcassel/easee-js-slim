@@ -104,18 +104,32 @@ const circuitUpdate = {
   offlineMaxCircuitCurrentP3: 10,
 }
 easee.setCircuitSettings(circuitUpdate)
+
+//Example: turn schedule on/off
+const weeklySchedule = await easee.getWeeklySchedule()
+weeklySchedule.isEnabled = !weeklySchedule.isEnabled
+easee.updateWeeklySchedule(weeklySchedule)
 ```
+### Schedule life-hack (inverted schedule) 
+Instead of starting, stopping pausing and handling all things manually you can set the schedule to something very low. Example enabled only on **1 minute at 3am on sunday** in your app. You can then toggle the schedule off to start charging, and toggle it off to stop charging using your external automation. Example to turn ON charging using the disabled Schedule is: 
+```javascript
+const weeklySchedule = await easee.getWeeklySchedule()
+weeklySchedule.isEnabled = false
+easee.updateWeeklySchedule(weeklySchedule)
+```
+***Note: i managed to crash my schedule when sending partial json to this endpoint, so an emergency copy is added to `src/examples/weeklySchedule.json`***
 
 ### Access token (updated)
-
 The `initAccessToken()` is now needed to run first. The time interval fr the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires. 
 
 ### Debug logging
-
 Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
 
 ## General information and known issues
-
 - All Contributions/PRs are happily accepted
 - Even though this is a proxy-API, NO GUARANTEES are given, and you can probably screw up your Easee box by sending strange manual commands
-- Uses modules / async and imports
+
+## Version history (summary from 1.0)
+- 1.0.0 Started on v1.0, good enough. 
+- 1.0.3 Updated `initAccessToken` to use login since API changed
+- 1.1.0 Removed all `process.exit`, all things now throws an error instead. Added `updateWeeklySchedule`. Described inverted schedule.
