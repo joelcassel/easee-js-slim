@@ -1,4 +1,4 @@
-// Listed on https://developer.easee.cloud/changelog/ocpp-14
+// Listed on https://developer.easee.com/changelog/ocpp-14
 
 const reasonForNoCurrent = {
   OK: 0, // charger is allocated current
