@@ -135,3 +135,5 @@ With EASEE_DEBUG=true all API call-results will be printed.
 } else {
   console.log(collectedIds)
 }
+//something was not exiting on my machine, lazy man solution...
+process.exit(0)
