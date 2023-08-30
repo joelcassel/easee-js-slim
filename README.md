@@ -2,8 +2,10 @@
 
 - Handy command abstraction and simple examples for NodeJs and Server implementations
 - Uses **Axios** for access.
-- You need an account created on Easee Cloud (https://easee.cloud/auth/signup)
-- Details on the Easee API is on https://developer.easee.cloud/docs/get-started
+- You need an account created on Easee Cloud (https://easee.com/auth/signup)
+- Details on the Easee API is on https://developer.easee.com/docs/get-started
+
+_2023-08-30: The official Easee API url is now changed to .com. Docs will also change to https://developer.easee.com on 3rd of October according to Easee. See: https://developer.easee.cloud/docs/api-domain-change-copy (thanks chrisill for the notice/issue)_
 
 # Quickstart
 
@@ -16,7 +18,7 @@ Most normal home-automation enthusiasts have only one charger, for this case the
 
 Simplest way:
 
-1. Register your account and charger in the "Easee" app, or at https://easee.cloud/auth/signup.
+1. Register your account and charger in the "Easee" app, or at https://easee.com/auth/signup.
 1. Set the your Easee account `username` and `password` as environment variables:
    ```bash
    Linux:
@@ -71,11 +73,11 @@ easeeExample()
 (Will be updated eventually)
 
 - Look at `src/integration/easee.js` where all functions are easy to read in the code
-- Read the official API on https://developer.easee.cloud/docs/get-started for more details
+- Read the official API on https://developer.easee.com/docs/get-started for more details
 
 ### Quick reference
 
-Here are some of the functions. JSON-setting-functions takes partial objects, see the official API doc on https://developer.easee.cloud/docs/
+Here are some of the functions. JSON-setting-functions takes partial objects, see the official API doc on https://developer.easee.com/docs/
 
 ```javascript
 await easee.initAccessToken()
@@ -87,6 +89,12 @@ const sites = await easee.getSites()
 const site = await easee.getSite()
 const circuit = await easee.getCircuitSettings()
 const cableConnected = await easee.isEVCableConnected()
+const totalPowerUsage = await easee.getPowerUsage() //last 24h
+const totalPowerUsage = await easee.getPowerUsage(
+  null,
+  '2023-08-29T00:00:00.000Z',
+  '2023-08-30T00:00:00.000Z ',
+)
 easee.pauseCharging()
 easee.resumeCharging()
 easee.stopCharging()
@@ -110,26 +118,35 @@ const weeklySchedule = await easee.getWeeklySchedule()
 weeklySchedule.isEnabled = !weeklySchedule.isEnabled
 easee.updateWeeklySchedule(weeklySchedule)
 ```
-### Schedule life-hack (inverted schedule) 
-Instead of starting, stopping pausing and handling all things manually you can set the schedule to something super-low. Example: enable schedule only for **1 minute at 3am on sunday** in your easee-app. You can then toggle the schedule OFF to start charging, and toggle it ON to stop charging using your external automation scheduler. Example to turn ON charging using the disabled Schedule is: 
+
+### Schedule life-hack (inverted schedule)
+
+Instead of starting, stopping pausing and handling all things manually you can set the schedule to something super-low. Example: enable schedule only for **1 minute at 3am on sunday** in your easee-app. You can then toggle the schedule OFF to start charging, and toggle it ON to stop charging using your external automation scheduler. Example to turn ON charging using the disabled Schedule is:
+
 ```javascript
 const weeklySchedule = await easee.getWeeklySchedule()
 weeklySchedule.isEnabled = false
 easee.updateWeeklySchedule(weeklySchedule)
 ```
-***Note: i managed to crash my schedule when sending partial json to this endpoint, so an emergency copy is added to `src/examples/weeklySchedule.json`***
+
+**_Note: i managed to crash my schedule when sending partial json to this endpoint, so an emergency copy is added to `src/examples/weeklySchedule.json`_**
 
 ### Access token (updated)
-The `initAccessToken()` is now needed to run first. The time interval fr the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires. 
+
+The `initAccessToken()` is now needed to run first. The time interval fr the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires.
 
 ### Debug logging
+
 Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
 
 ## General information and known issues
+
 - All Contributions/PRs are happily accepted
 - Even though this is a proxy-API, NO GUARANTEES are given, and you can probably screw up your Easee box by sending strange manual commands
 
 ## Version history (summary from 1.0)
-- 1.0.0 Started on v1.0, good enough. 
+
+- 1.0.0 Started on v1.0, good enough.
 - 1.0.3 Updated `initAccessToken` to use login since API changed
 - 1.1.0 Removed all `process.exit`, all things now throws an error instead. Added `updateWeeklySchedule`. Described inverted schedule.
+- 1.2.0 Updated Easee API endpoint addresses to api.easee.com (and updated documentation links). Added getPowerUsage()
