@@ -86,7 +86,7 @@ async function printConfigDetails() {
   */
 
   //const chargerDetails = await easee.getLastChargingSession()
-  //console.log(JSON.stringify(chargerDetails, null, 2)) 
+  //console.log(JSON.stringify(chargerDetails, null, 2))
 
   /*
   const profile = await easee.getProfile()
@@ -94,7 +94,10 @@ async function printConfigDetails() {
 
   const update = await easee.updateFirmware()
   console.log(JSON.stringify(update, null, 2)) 
-*/
+  
+  const totalPowerUsage = await easee.getPowerUsage(onlyOneChargerId, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
+  console.log(JSON.stringify(totalPowerUsage, null, 2))
+  */
 }
 
 //Needs an async function to use async

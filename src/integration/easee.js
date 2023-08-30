@@ -2,8 +2,8 @@ import axios from 'axios'
 import reasonForNoCurrent from './reasonForNoCurrent.js'
 import chargerOpMode from './chargerOpMode.js'
 
-// API Details for Easee : https://developer.easee.cloud/docs/get-started
-const apiUrl = 'https://api.easee.cloud'
+// API Details for Easee : https://developer.easee.com/docs/get-started
+const apiUrl = 'https://api.easee.com'
 export class Easee {
   constructor(
     username = process.env.EASEE_USERNAME,
@@ -33,7 +33,9 @@ export class Easee {
       console.warn(
         'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
       )
-      throw new Error('Missing credentials, cannot load EASEE_USERNAME & EASEE_PASSWORD')
+      throw new Error(
+        'Missing credentials, cannot load EASEE_USERNAME & EASEE_PASSWORD',
+      )
     }
     let response
     if (!refreshToken) {
@@ -48,7 +50,9 @@ export class Easee {
             'Could not query access Token from login, verify your login and credentials..',
           )
           logRequestError(error)
-          throw new Error('Could not query Easee access Token when doing login, verify your login and credentials.')
+          throw new Error(
+            'Could not query Easee access Token when doing login, verify your login and credentials.',
+          )
         })
     } else {
       log('Query new access token with refresh token..')
@@ -62,7 +66,9 @@ export class Easee {
             'Could not query refresh access Token from login, verify your login and credentials..',
           )
           logRequestError(error)
-          throw new Error('Could not query Easee refresh access Token, verify your login and credentials.')
+          throw new Error(
+            'Could not query Easee refresh access Token, verify your login and credentials.',
+          )
         })
     }
 
@@ -72,7 +78,9 @@ export class Easee {
         'Could not get access Token from login, verify your login and credentials',
       )
       console.error(JSON.stringify(response.data, null, 2))
-      throw new Error('Could not load Easee access Token, verify your login and credentials.')
+      throw new Error(
+        'Could not load Easee access Token, verify your login and credentials.',
+      )
     }
 
     //Set global token for next calls
@@ -83,10 +91,13 @@ export class Easee {
     ] = `Bearer ${this.accessToken}`
 
     // Refresh token 1 minute before it expires
-    setTimeout(async () => {
-      log('Refreshing token..')
-      await this.initAccessToken(this.refreshToken)
-    }, response.data.expiresIn * 1000 - 60000) // 1 minute before expiration
+    setTimeout(
+      async () => {
+        log('Refreshing token..')
+        await this.initAccessToken(this.refreshToken)
+      },
+      response.data.expiresIn * 1000 - 60000,
+    ) // 1 minute before expiration
 
     return this.accessToken
   }
@@ -125,13 +136,13 @@ export class Easee {
     return summarizeUpdateResult(response)
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers
+  // https://developer.easee.com/reference/get_api-chargers
   async getChargers() {
     const response = await this.easeeGetCall('/api/chargers')
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers-id-details
+  // https://developer.easee.com/reference/get_api-chargers-id-details
   async getChargerDetails(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(
       `/api/chargers/${chargerId}/details`,
@@ -139,7 +150,7 @@ export class Easee {
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers-id-weekly-charge-plan
+  // https://developer.easee.com/reference/get_api-chargers-id-weekly-charge-plan
   async getWeeklySchedule(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(
       `/api/chargers/${chargerId}/weekly_charge_plan`,
@@ -147,7 +158,7 @@ export class Easee {
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers-id-config
+  // https://developer.easee.com/reference/get_api-chargers-id-config
   async getChargerConfig(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(
       `/api/chargers/${chargerId}/config`,
@@ -155,25 +166,25 @@ export class Easee {
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers-id-state
+  // https://developer.easee.com/reference/get_api-chargers-id-state
   async getChargerState(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(`/api/chargers/${chargerId}/state`)
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-sites
+  // https://developer.easee.com/reference/get_api-sites
   async getSites() {
     const response = await this.easeeGetCall(`/api/sites`)
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-chargers-id-site
+  // https://developer.easee.com/reference/get_api-chargers-id-site
   async getSite(siteId = this.onlyOneSiteId) {
     const response = await this.easeeGetCall(`/api/sites/${siteId}`)
     return response
   }
 
-  // https://developer.easee.cloud/reference/get_api-sites-siteid-circuits-circuitid-settings
+  // https://developer.easee.com/reference/get_api-sites-siteid-circuits-circuitid-settings
   async getCircuitSettings(
     siteId = this.onlyOneSiteId,
     circuitId = this.onlyOneCircuitId,
@@ -184,27 +195,58 @@ export class Easee {
     return response
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-start-charging
+  // https://developer.easee.com/reference/get_api-chargers-id-sessions-latest
+  // Last 24h if empty call: easee.getPowerUsage()
+  // With date: easee.getPowerUsage(null, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
+  async getPowerUsage(
+    chargerId = this.onlyOneChargerId,
+    fromDateTimeISOString = null,
+    toDateTimeISOString = null,
+  ) {
+    {
+      //set one day back if not set
+      if (!fromDateTimeISOString) {
+        let from = new Date()
+        from.setDate(from.getDate() - 3)
+        fromDateTimeISOString = from.toISOString()
+      }
+
+      //set to now if not set
+      if (!toDateTimeISOString) {
+        toDateTimeISOString = new Date().toISOString()
+      }
+
+      const fromEncoded = encodeURIComponent(fromDateTimeISOString)
+      const toEncoded = encodeURIComponent(toDateTimeISOString)
+
+      const response = await this.easeeGetCall(
+        `/api/chargers/${chargerId}/usage/hourly/${fromEncoded}/${toEncoded}`,
+      )
+      return response
+    }
+  }
+
+  // https://developer.easee.com/reference/post_api-chargers-id-commands-start-charging
   async startCharging(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'start_charging')
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-stop-charging
+  // https://developer.easee.com/reference/post_api-chargers-id-commands-stop-charging
   async stopCharging(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'stop_charging')
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-pause-charging
+  // https://developer.easee.com/reference/post_api-chargers-id-commands-pause-charging
   async pauseCharging(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'pause_charging')
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-resume-charging
+  // https://developer.easee.com/reference/post_api-chargers-id-commands-resume-charging
   async resumeCharging(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'resume_charging')
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-commands-override-schedule
+  // https://developer.easee.com/reference/post_api-chargers-id-commands-override-schedule
   async overrideChargingSchedule(chargerId = this.onlyOneChargerId) {
     return this.easeeChargerCommand(chargerId, 'override_schedule')
   }
@@ -256,7 +298,7 @@ export class Easee {
     }
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-settings
+  // https://developer.easee.com/reference/post_api-chargers-id-settings
   async updateChargerSettings(
     settingsJsonObjToUpdate = {},
     chargerId = this.onlyOneChargerId,
@@ -268,7 +310,7 @@ export class Easee {
     return summarizeUpdateResult(response)
   }
 
-  // https://developer.easee.cloud/reference/post_api-sites-siteid-circuits-circuitid-settings
+  // https://developer.easee.com/reference/post_api-sites-siteid-circuits-circuitid-settings
   async setCircuitSettings(
     settingsJsonObjToUpdate = {},
     siteId = this.onlyOneSiteId,
@@ -281,7 +323,7 @@ export class Easee {
     return summarizeUpdateResult(response)
   }
 
-  // https://developer.easee.cloud/reference/post_api-chargers-id-weekly-charge-plan
+  // https://developer.easee.com/reference/post_api-chargers-id-weekly-charge-plan
   //Warning: Poor validation at Easee, partial objects are not always good.
   // If you manage to destroy your schedule object, there is an example in src/examples/weeklySchedule.json
   async updateWeeklySchedule(
