@@ -117,6 +117,9 @@ easee.setCircuitSettings(circuitUpdate)
 const weeklySchedule = await easee.getWeeklySchedule()
 weeklySchedule.isEnabled = !weeklySchedule.isEnabled
 easee.updateWeeklySchedule(weeklySchedule)
+
+//Stop the timer to refresh the token (will allow the class to close gracefully)
+easee.close()
 ```
 
 ### Schedule life-hack (inverted schedule)
@@ -135,9 +138,11 @@ easee.updateWeeklySchedule(weeklySchedule)
 
 The `initAccessToken()` is now needed to run first. The time interval fr the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires.
 
-### Debug logging
+### Debug logging and Errors handling
 
 Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
+
+By default only the init-functions will throw errors directly. All other functions returns an empty result on error. This was not optimal behavior, so now you can set the env-variable `export THROW_ERRORS_ON_FAULT=true or the `customData.throwErrorsOnFault:true` to make all functions throw errors on fault. Unless set to true it not change the old behavior.
 
 ## General information and known issues
 
@@ -150,3 +155,4 @@ Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will l
 - 1.0.3 Updated `initAccessToken` to use login since API changed
 - 1.1.0 Removed all `process.exit`, all things now throws an error instead. Added `updateWeeklySchedule`. Described inverted schedule.
 - 1.2.0 Updated Easee API endpoint addresses to api.easee.com (and updated documentation links). Added getPowerUsage()
+- 1.3.0 Updated token refresh timer, Added `close()` to stop the timer to refresh the token (will allow the class to close gracefully). Added throwErrorsOnFault (env: THROW_ERRORS_ON_FAULT) that will cause the methods to throw errors instead of returning empty response. Will not change old behviour and needs to be set to `true`.
