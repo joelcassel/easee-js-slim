@@ -5,8 +5,6 @@
 - You need an account created on Easee Cloud (https://easee.com/auth/signup)
 - Details on the Easee API is on https://developer.easee.com/docs/get-started
 
-_2023-08-30: The official Easee API url is now changed to .com. Docs will also change to https://developer.easee.com on 3rd of October according to Easee. See: https://developer.easee.cloud/docs/api-domain-change-copy (thanks chrisill for the notice/issue)_
-
 # Quickstart
 
 ## For single installations for the Easee EV charger
@@ -69,8 +67,6 @@ easeeExample()
 ```
 
 ## API and Documentation
-
-(Will be updated eventually)
 
 - Look at `src/integration/easee.js` where all functions are easy to read in the code
 - Read the official API on https://developer.easee.com/docs/get-started for more details
@@ -136,13 +132,13 @@ easee.updateWeeklySchedule(weeklySchedule)
 
 ### Access token (updated)
 
-The `initAccessToken()` is now needed to run first. The time interval fr the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires.
+The `initAccessToken()` is now needed to run first to log in and load the first token. The returned time interval for the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires.
 
 ### Debug logging and Errors handling
 
 Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
 
-By default only the init-functions will throw errors directly. All other functions returns an empty result on error. This was not optimal behavior, so now you can set the env-variable `export THROW_ERRORS_ON_FAULT=true or the `customData.throwErrorsOnFault:true` to make all functions throw errors on fault. Unless set to true it not change the old behavior.
+By default only the init-functions will throw errors directly. All other functions returns an empty result on error. This was not optimal behavior, so now you can set the env-variable `EASEE_THROW_ERRORS_ON_FAULT=true` or the `customData.throwErrorsOnFault:true` to make all functions throw errors on fault. Unless set to true it will not change the old behavior.
 
 ## General information and known issues
 
@@ -155,4 +151,5 @@ By default only the init-functions will throw errors directly. All other functio
 - 1.0.3 Updated `initAccessToken` to use login since API changed
 - 1.1.0 Removed all `process.exit`, all things now throws an error instead. Added `updateWeeklySchedule`. Described inverted schedule.
 - 1.2.0 Updated Easee API endpoint addresses to api.easee.com (and updated documentation links). Added getPowerUsage()
-- 1.3.0 Updated token refresh timer, Added `close()` to stop the timer to refresh the token (will allow the class to close gracefully). Added throwErrorsOnFault (env: THROW_ERRORS_ON_FAULT) that will cause the methods to throw errors instead of returning empty response. Will not change old behviour and needs to be set to `true`.
+- 1.3.0 Updated token refresh timer, Added `close()` to stop the timer to refresh the token (will allow the class to close gracefully). Added throwErrorsOnFault (env: EASEE_THROW_ERRORS_ON_FAULT) that will cause the methods to throw errors instead of returning empty response. Will not change old behavior unless set to `true`.
+- 1.3.1 Updated readme and renamed env throwing flag to EASEE_THROW_ERRORS_ON_FAULT
