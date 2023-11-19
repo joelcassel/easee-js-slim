@@ -20,6 +20,7 @@ async function printConfigDetails() {
     onlyOneChargerId: onlyOneChargerId,
     onlyOneSiteId: onlyOneSiteId,
     onlyOneCircuitId: onlyOneCircuitId,
+    throwErrorsOnFault: true,
   })
   console.log('Started!')
 
@@ -36,8 +37,8 @@ async function printConfigDetails() {
   //  console.log(`--- Charger: ${charger.name} (${charger.id})`),
   //)
 
-  //const chargerDetails = await easee.getChargerDetails()
-  //console.log(JSON.stringify(chargerDetails, null, 2))
+  const chargerDetails = await easee.getChargerDetails()
+  console.log(JSON.stringify(chargerDetails, null, 2))
 
   //const schedule = await getWeeklySchedule()
   //console.log(JSON.stringify(schedule, null, 2));
@@ -98,6 +99,7 @@ async function printConfigDetails() {
   const totalPowerUsage = await easee.getPowerUsage(onlyOneChargerId, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
   console.log(JSON.stringify(totalPowerUsage, null, 2))
   */
+  easee.clearTokenRefreshTimer()
 }
 
 //Needs an async function to use async

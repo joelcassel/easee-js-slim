@@ -13,6 +13,8 @@ export class Easee {
     this.onlyOneChargerId = customData.onlyOneChargerId || process.env.EASEE_CHARGERID || '--NOT_SET_CHARGERID--'
     this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID || '--NOT_SET_SITEID--'
     this.onlyOneCircuitId = customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID || '--NOT_SET_CIRCUITID--'
+    this.throwErrorsOnFault = !!(customData.throwErrorsOnFault || process.env.THROW_ERROR_ON_FAULT)
+    this.tokenRefreshTimer = null
   }
 
   async initAccessToken(refreshToken = null) {
@@ -40,7 +42,7 @@ export class Easee {
       response = await axios
         .post(apiUrl + '/api/accounts/refresh_token', {
           userName: this.accessToken,
-          password: this.refreshToken,
+          password: refreshToken,
         })
         .catch(function (error) {
           console.error('Could not query refresh access Token from login, verify your login and credentials..')
@@ -62,21 +64,33 @@ export class Easee {
     axios.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
     // Refresh token 1 minute before it expires
-    setTimeout(
-      async () => {
-        log('Refreshing token..')
-        await this.initAccessToken(this.refreshToken)
-      },
-      response.data.expiresIn * 1000 - 60000,
-    ) // 1 minute before expiration
-
+    if (!this.tokenRefreshTimer) {
+      this.tokenRefreshTimer = setTimeout(
+        async () => {
+          log('Refreshing token..')
+          try {
+            await this.initAccessToken(this.refreshToken)
+          } catch (error) {
+            console.error('Could not refresh access Token, testing to re-login..')
+            this.refreshToken = null
+            await this.initAccessToken()
+          }
+        },
+        response.data.expiresIn * 1000 - 60000,
+      ) // 1 minute before expiration
+    }
     return this.accessToken
   }
 
   async easeeGetCall(endpoint) {
     log(`Calling GET ${endpoint} ...`)
-    const { data } = await axios.get(apiUrl + endpoint).catch(function (error) {
+    const { data } = await axios.get(apiUrl + endpoint).catch((error) => {
       logRequestError(error)
+      if (this.throwErrorsOnFault) {
+        throw new Error(
+          `Error on Easee GET ${endpoint}, Error: ${error?.response?.status} (${error?.response?.statusText})`,
+        )
+      }
       return {}
     })
     log(`Response:\n`, data)
@@ -85,8 +99,13 @@ export class Easee {
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
     log(`Calling POST ${endpoint} ...`)
-    const response = await axios.post(apiUrl + endpoint, jsonBodyObject).catch(function (error) {
+    const response = await axios.post(apiUrl + endpoint, jsonBodyObject).catch((error) => {
       logRequestError(error)
+      if (this.throwErrorsOnFault) {
+        throw new Error(
+          `Error on Easee POST ${endpoint}, Error: ${error?.response?.status} (${error?.response?.statusText})`,
+        )
+      }
       return {}
     })
     log(`Response:\n`, response)
@@ -282,6 +301,18 @@ export class Easee {
       default:
         return true
     }
+  }
+
+  // Removes timer so that the class can be closed niceley (if you want to)
+  clearTokenRefreshTimer() {
+    if (this.tokenRefreshTimer) {
+      clearInterval(this.tokenRefreshTimer)
+      this.tokenRefreshTimer = null
+    }
+  }
+
+  close() {
+    this.clearTokenRefreshTimer()
   }
 }
 
