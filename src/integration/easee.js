@@ -77,10 +77,12 @@ export class Easee {
     }
     const tokenExpiryInMillis = response.data.expiresIn * 1000 - 60000 // remove 1 minute on expiry
     log(`Token refresh Timeout set in ${tokenExpiryInMillis} milliseconds.`)
+    if(this.tokenRefreshTimer) {
+      clearTimeout(this.tokenRefreshTimer)
+    }
     this.tokenRefreshTimer = setTimeout(tokenRefresh, tokenExpiryInMillis, refreshToken)
     return this.accessToken
   }
-
   
   async easeeGetCall(endpoint) {
     log(`Calling GET ${endpoint} ...`)
