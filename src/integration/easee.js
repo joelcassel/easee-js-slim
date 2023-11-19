@@ -13,7 +13,7 @@ export class Easee {
     this.onlyOneChargerId = customData.onlyOneChargerId || process.env.EASEE_CHARGERID || '--NOT_SET_CHARGERID--'
     this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID || '--NOT_SET_SITEID--'
     this.onlyOneCircuitId = customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID || '--NOT_SET_CIRCUITID--'
-    this.throwErrorsOnFault = !!(customData.throwErrorsOnFault || process.env.THROW_ERROR_ON_FAULT)
+    this.throwErrorsOnFault = !!(customData.throwErrorsOnFault || process.env.THROW_ERRORS_ON_FAULT)
     this.tokenRefreshTimer = null
   }
 
