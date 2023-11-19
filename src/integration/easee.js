@@ -64,21 +64,21 @@ export class Easee {
     axios.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
     // Refresh token 1 minute before it expires
-    if (!this.tokenRefreshTimer) {
-      this.tokenRefreshTimer = setTimeout(
-        async () => {
-          log('Refreshing token..')
-          try {
-            await this.initAccessToken(this.refreshToken)
-          } catch (error) {
-            console.error('Could not refresh access Token, testing to re-login..')
-            this.refreshToken = null
-            await this.initAccessToken()
-          }
-        },
-        response.data.expiresIn * 1000 - 60000,
-      ) // 1 minute before expiration
-    }
+    log(`Setting token refresh Timeout, token expiry in ${response.data.expiresIn} seconds.`)
+    this.tokenRefreshTimer = setTimeout(
+      async () => {
+        log('Refreshing token..')
+        try {
+          await this.initAccessToken(this.refreshToken)
+        } catch (error) {
+          console.error('Could not refresh access Token, testing to re-login..')
+          this.refreshToken = null
+          await this.initAccessToken()
+        }
+      },
+      response.data.expiresIn * 1000 - 60000,
+    ) // 1 minute before expiration
+
     return this.accessToken
   }
 
