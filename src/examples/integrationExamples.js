@@ -99,7 +99,8 @@ async function printConfigDetails() {
   const totalPowerUsage = await easee.getPowerUsage(onlyOneChargerId, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
   console.log(JSON.stringify(totalPowerUsage, null, 2))
   */
-  easee.clearTokenRefreshTimer()
+ 
+  easee.close()
 }
 
 //Needs an async function to use async
