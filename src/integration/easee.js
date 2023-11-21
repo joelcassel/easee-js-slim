@@ -41,8 +41,8 @@ export class Easee {
       log('Query new access token with refresh token..')
       response = await axios
         .post(apiUrl + '/api/accounts/refresh_token', {
-          userName: this.accessToken,
-          password: refreshToken,
+          accessToken: this.accessToken,
+          refreshToken: refreshToken,
         })
         .catch(function (error) {
           console.error('Could not query refresh access Token from login, verify your login and credentials..')
@@ -80,7 +80,7 @@ export class Easee {
     if(this.tokenRefreshTimer) {
       clearTimeout(this.tokenRefreshTimer)
     }
-    this.tokenRefreshTimer = setTimeout(tokenRefresh, tokenExpiryInMillis, refreshToken)
+    this.tokenRefreshTimer = setTimeout(tokenRefresh, tokenExpiryInMillis, this.refreshToken)
     return this.accessToken
   }
   
