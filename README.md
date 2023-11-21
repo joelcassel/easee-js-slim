@@ -153,5 +153,5 @@ By default only the init-functions will throw errors directly. All other functio
 - 1.2.0 Updated Easee API endpoint addresses to api.easee.com (and updated documentation links). Added getPowerUsage()
 - 1.3.0 Updated token refresh timer, Added `close()` to stop the timer to refresh the token (will allow the class to close gracefully). Added throwErrorsOnFault (env: EASEE_THROW_ERRORS_ON_FAULT) that will cause the methods to throw errors instead of returning empty response. Will not change old behavior unless set to `true`.
 - 1.3.1 Updated readme and renamed env throwing flag to EASEE_THROW_ERRORS_ON_FAULT
-- 1.3.3 Updated `tokenRefreshTimer` function, `1.3.0-1.3.2` has broken refreshToken function
-- 1.3.4 Updated `tokenRefreshTimer` to clear old timer, safety in case you do several "init" by mistake
+- 1.3.3 Updated `tokenRefreshTimer` function, `1.3.0-1.3.4` has broken refreshToken function
+- 1.3.5 Update since the Easee Refresh token API changed some time back, https://developer.easee.com/changelog/refresh-token-handling. Finally good
