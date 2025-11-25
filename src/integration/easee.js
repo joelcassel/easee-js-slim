@@ -1,10 +1,14 @@
 import axios from 'axios'
 import reasonForNoCurrent from './reasonForNoCurrent.js'
 import chargerOpMode from './chargerOpMode.js'
+import observationIDs from './observationIDs.js'
 
 // API Details for Easee : https://developer.easee.com/docs/get-started
 const apiUrl = 'https://api.easee.com'
 export class Easee {
+
+  static observationIDs = observationIDs
+
   constructor(username = process.env.EASEE_USERNAME, password = process.env.EASEE_PASSWORD, customData = {}) {
     this.accessToken = null
     this.refreshToken = null
@@ -84,9 +88,9 @@ export class Easee {
     return this.accessToken
   }
   
-  async easeeGetCall(endpoint) {
+  async easeeGetCall(endpoint, params = {}) {
     log(`Calling GET ${endpoint} ...`)
-    const { data } = await axios.get(apiUrl + endpoint).catch((error) => {
+    const { data } = await axios.get(apiUrl + endpoint, { params }).catch((error) => {
       logRequestError(error)
       if (this.throwErrorsOnFault) {
         throw new Error(
@@ -149,9 +153,20 @@ export class Easee {
   }
 
   // https://developer.easee.com/reference/get_api-chargers-id-state
+  // DEPRECATED
   async getChargerState(chargerId = this.onlyOneChargerId) {
     const response = await this.easeeGetCall(`/api/chargers/${chargerId}/state`)
     return response
+  }
+
+  async getObservations(ids, chargerId = this.onlyOneChargerId) {
+    const params = { ids: ids.join(',') }
+    const response = await this.easeeGetCall(`/state/${chargerId}/observations`, params)
+
+    return response.observations.reduce((obj, item) => ({
+		...obj,
+		[Object.keys(Easee.observationIDs).filter(k => Easee.observationIDs[k] == item.id)] : item.value}),
+		{})
   }
 
   // https://developer.easee.com/reference/get_api-sites
@@ -161,8 +176,9 @@ export class Easee {
   }
 
   // https://developer.easee.com/reference/get_api-chargers-id-site
-  async getSite(siteId = this.onlyOneSiteId) {
-    const response = await this.easeeGetCall(`/api/sites/${siteId}`)
+  async getSite(siteId = this.onlyOneSiteId, detailed = true, alwaysGetChargerAccessLevel = false) {
+    const params = { detailed, alwaysGetChargerAccessLevel }
+    const response = await this.easeeGetCall(`/api/sites/${siteId}`, params)
     return response
   }
 
