@@ -193,25 +193,19 @@ export class Easee {
   // Last 24h if empty call: easee.getPowerUsage()
   // With date: easee.getPowerUsage(null, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
   async getPowerUsage(chargerId = this.onlyOneChargerId, fromDateTimeISOString = null, toDateTimeISOString = null) {
-    {
-      //set one day back if not set
-      if (!fromDateTimeISOString) {
-        let from = new Date()
-        from.setDate(from.getDate() - 3)
-        fromDateTimeISOString = from.toISOString()
-      }
-
-      //set to now if not set
-      if (!toDateTimeISOString) {
-        toDateTimeISOString = new Date().toISOString()
-      }
-
-      const fromEncoded = encodeURIComponent(fromDateTimeISOString)
-      const toEncoded = encodeURIComponent(toDateTimeISOString)
-
-      const response = await this.easeeGetCall(`/api/chargers/${chargerId}/usage/hourly/${fromEncoded}/${toEncoded}`)
-      return response
+    if (!fromDateTimeISOString) {
+      fromDateTimeISOString = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
     }
+
+    if (!toDateTimeISOString) {
+      toDateTimeISOString = new Date().toISOString()
+    }
+
+    const fromEncoded = encodeURIComponent(fromDateTimeISOString)
+    const toEncoded = encodeURIComponent(toDateTimeISOString)
+
+    const response = await this.easeeGetCall(`/api/chargers/${chargerId}/usage/hourly/${fromEncoded}/${toEncoded}`)
+    return response
   }
 
   // https://developer.easee.com/reference/post_api-chargers-id-commands-start-charging
@@ -241,7 +235,7 @@ export class Easee {
 
   //Go-Charging helper-function to Start, resume or overrideSchedule (just make it happen..)
   async startOrResumeCharging(chargerId = this.onlyOneChargerId, recursive = 0) {
-    console.log('Just starting')
+    log('Just starting')
     //Get charging state
     const result = await this.getChargerState(chargerId)
     if (typeof result?.reasonForNoCurrent !== 'number') {
@@ -258,20 +252,20 @@ export class Easee {
       return { status: 'No action', message: 'EV is Not connected' }
     } else if (result.reasonForNoCurrent === reasonForNoCurrent.PendingScheduledCharging) {
       //If blocked by schedule
-      console.log('Overriding schedule stop')
+      log('Overriding schedule stop')
       return this.overrideChargingSchedule(chargerId)
     } else if (result.reasonForNoCurrent === reasonForNoCurrent.MaxDynamicChargerCurrentTooLow) {
       //If paused: Resume -> Pause 5s -> (re-start and Check if blocked by schedule)
-      console.log('Resuming after pause')
+      log('Resuming after pause')
       const resumeResult = await this.resumeCharging(chargerId)
-      await new Promise((r) => setTimeout(r, 5000))
+      await new Promise((r) => setTimeout(r, this.resumeWaitMs))
       if (recursive === 1) {
         return resumeResult
       }
-      return this.startOrResumeCharging(chargerId, recursive++)
+      return this.startOrResumeCharging(chargerId, recursive + 1)
     } else {
       //other reasons
-      console.log('Starting')
+      log('Starting')
       return this.startCharging(chargerId)
     }
   }
