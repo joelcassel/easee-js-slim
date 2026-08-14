@@ -4,6 +4,8 @@ import chargerOpMode from './chargerOpMode.js'
 
 // API Details for Easee : https://developer.easee.com/docs/get-started
 const apiUrl = 'https://api.easee.com'
+const MIN_REFRESH_DELAY_MS = 60000
+
 export class Easee {
   constructor(username = process.env.EASEE_USERNAME, password = process.env.EASEE_PASSWORD, customData = {}) {
     this.accessToken = null
@@ -13,7 +15,9 @@ export class Easee {
     this.onlyOneChargerId = customData.onlyOneChargerId || process.env.EASEE_CHARGERID || '--NOT_SET_CHARGERID--'
     this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID || '--NOT_SET_SITEID--'
     this.onlyOneCircuitId = customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID || '--NOT_SET_CIRCUITID--'
-    this.throwErrorsOnFault = !!(customData.throwErrorsOnFault || process.env.EASEE_THROW_ERRORS_ON_FAULT)
+    this.throwErrorsOnFault = customData.throwErrorsOnFault ?? envFlag(process.env.EASEE_THROW_ERRORS_ON_FAULT, true)
+    this.unrefTimer = customData.unrefTimer ?? true
+    this.resumeWaitMs = customData.resumeWaitMs ?? 5000
     this.client = customData.client ?? axios.create({ baseURL: apiUrl })
     this.tokenRefreshTimer = null
   }
@@ -21,7 +25,7 @@ export class Easee {
   async initAccessToken(refreshToken = null) {
     if (!this.username || !this.password) {
       console.warn(
-        'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
+        'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/integration/easee.js)',
       )
       throw new Error('Missing credentials, cannot load EASEE_USERNAME & EASEE_PASSWORD')
     }
@@ -55,7 +59,6 @@ export class Easee {
     this.accessToken = response.data.accessToken
     if (!this.accessToken) {
       console.error('Could not get access Token from login, verify your login and credentials')
-      console.error(JSON.stringify(response.data, null, 2))
       throw new Error('Could not load Easee access Token, verify your login and credentials.')
     }
 
@@ -64,23 +67,34 @@ export class Easee {
 
     // Refresh token 1 minute before it expires
     this.refreshToken = response.data.refreshToken
-    log(`Setting token refresh Timeout, token expiry in ${response.data.expiresIn} seconds.`)
-    const tokenRefresh = async (refreshToken) => {
-      log(`Refreshing token`)
+    this.scheduleTokenRefresh(response.data.expiresIn * 1000 - MIN_REFRESH_DELAY_MS)
+    return this.accessToken
+  }
+
+  scheduleTokenRefresh(delayMs) {
+    const delay = Number.isFinite(delayMs) ? Math.max(delayMs, MIN_REFRESH_DELAY_MS) : MIN_REFRESH_DELAY_MS
+    log(`Token refresh scheduled in ${delay} milliseconds.`)
+    this.clearTokenRefreshTimer()
+    this.tokenRefreshTimer = setTimeout(() => this.refreshAccessToken(), delay)
+    if (this.unrefTimer) {
+      this.tokenRefreshTimer.unref()
+    }
+    return delay
+  }
+
+  async refreshAccessToken() {
+    log('Refreshing token')
+    try {
+      await this.initAccessToken(this.refreshToken)
+    } catch (error) {
+      console.error('Could not refresh access Token, testing to re-login..')
       try {
-        await this.initAccessToken(refreshToken)
-      } catch (error) {
-        console.error('Could not refresh access Token, testing to re-login..')
         await this.initAccessToken()
+      } catch (loginError) {
+        console.error('Could not re-login, retrying token refresh later..')
+        this.scheduleTokenRefresh(MIN_REFRESH_DELAY_MS)
       }
     }
-    const tokenExpiryInMillis = response.data.expiresIn * 1000 - 60000 // remove 1 minute on expiry
-    log(`Token refresh Timeout set in ${tokenExpiryInMillis} milliseconds.`)
-    if (this.tokenRefreshTimer) {
-      clearTimeout(this.tokenRefreshTimer)
-    }
-    this.tokenRefreshTimer = setTimeout(tokenRefresh, tokenExpiryInMillis, this.refreshToken)
-    return this.accessToken
   }
 
   async easeeGetCall(endpoint) {
@@ -313,7 +327,7 @@ export class Easee {
   // Removes timer so that the class can be closed niceley (if you want to)
   clearTokenRefreshTimer() {
     if (this.tokenRefreshTimer) {
-      clearInterval(this.tokenRefreshTimer)
+      clearTimeout(this.tokenRefreshTimer)
       this.tokenRefreshTimer = null
     }
   }
@@ -329,12 +343,18 @@ function log(...args) {
   }
 }
 
+function envFlag(value, fallback) {
+  if (value === undefined || value === '') {
+    return fallback
+  }
+  return value !== 'false' && value !== '0'
+}
+
 function logRequestError(error) {
-  console.log('---------API ERROR----------')
-  console.log(`URL: (${error?.request?.method}) ${error?.config?.url}`)
-  console.log(`Request body: ${error?.config?.data}`)
-  console.log(`Response status: ${error?.response?.status} (${error?.response?.statusText})`)
-  console.log('-------------------')
+  log('---------API ERROR----------')
+  log(`URL: (${error?.request?.method}) ${error?.config?.url}`)
+  log(`Response status: ${error?.response?.status} (${error?.response?.statusText})`)
+  log('-------------------')
 }
 
 function summarizeUpdateResult(response) {

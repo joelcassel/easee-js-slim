@@ -1,9 +1,9 @@
 allow-incomplete-coverage: false
 allow-empty-coverage: false
-statements: 55
-branches: 80
-functions: 35
-lines: 55
+statements: 65
+branches: 90
+functions: 40
+lines: 65
 coverage-report:
   - text
 exclude:

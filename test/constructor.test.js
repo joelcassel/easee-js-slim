@@ -60,6 +60,38 @@ t.test('an injected client is used verbatim', async (t) => {
   t.equal(easee.client, client)
 })
 
+t.test('throwErrorsOnFault defaults to true', async (t) => {
+  t.equal(new Easee('u', 'p').throwErrorsOnFault, true)
+})
+
+t.test('EASEE_THROW_ERRORS_ON_FAULT can actually turn throwing off', async (t) => {
+  t.teardown(() => delete process.env.EASEE_THROW_ERRORS_ON_FAULT)
+  for (const [value, expected] of [
+    ['false', false],
+    ['0', false],
+    ['true', true],
+    ['1', true],
+    ['', true],
+  ]) {
+    process.env.EASEE_THROW_ERRORS_ON_FAULT = value
+    t.equal(new Easee('u', 'p').throwErrorsOnFault, expected, `"${value}" gives ${expected}`)
+  }
+})
+
+t.test('customData.throwErrorsOnFault overrides the env', async (t) => {
+  process.env.EASEE_THROW_ERRORS_ON_FAULT = 'true'
+  t.teardown(() => delete process.env.EASEE_THROW_ERRORS_ON_FAULT)
+  t.equal(new Easee('u', 'p', { throwErrorsOnFault: false }).throwErrorsOnFault, false)
+})
+
+t.test('timer and retry defaults', async (t) => {
+  const easee = new Easee('u', 'p')
+  t.equal(easee.unrefTimer, true)
+  t.equal(easee.resumeWaitMs, 5000)
+  t.equal(new Easee('u', 'p', { unrefTimer: false }).unrefTimer, false)
+  t.equal(new Easee('u', 'p', { resumeWaitMs: 0 }).resumeWaitMs, 0)
+})
+
 t.test('starts with no token and no timer', async (t) => {
   const easee = new Easee('u', 'p')
   t.equal(easee.accessToken, null)
