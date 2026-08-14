@@ -86,11 +86,7 @@ const site = await easee.getSite()
 const circuit = await easee.getCircuitSettings()
 const cableConnected = await easee.isEVCableConnected()
 const totalPowerUsage = await easee.getPowerUsage() //last 24h
-const totalPowerUsage = await easee.getPowerUsage(
-  null,
-  '2023-08-29T00:00:00.000Z',
-  '2023-08-30T00:00:00.000Z ',
-)
+const totalPowerUsage = await easee.getPowerUsage(null, '2023-08-29T00:00:00.000Z', '2023-08-30T00:00:00.000Z ')
 easee.pauseCharging()
 easee.resumeCharging()
 easee.stopCharging()

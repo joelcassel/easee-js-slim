@@ -18,7 +18,7 @@ export class Easee {
   }
 
   async initAccessToken(refreshToken = null) {
-        if (!this.username || !this.password) {
+    if (!this.username || !this.password) {
       console.warn(
         'Could not find credentials, set the EASEE_USERNAME & EASEE_PASSWORD as env or edit the file directly (src/easee.js)',
       )
@@ -57,12 +57,12 @@ export class Easee {
       console.error(JSON.stringify(response.data, null, 2))
       throw new Error('Could not load Easee access Token, verify your login and credentials.')
     }
-    
+
     //Set global token for next calls
     log('Token retrieved..')
     log(response.data)
     axios.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
-    
+
     // Refresh token 1 minute before it expires
     this.refreshToken = response.data.refreshToken
     log(`Setting token refresh Timeout, token expiry in ${response.data.expiresIn} seconds.`)
@@ -77,13 +77,13 @@ export class Easee {
     }
     const tokenExpiryInMillis = response.data.expiresIn * 1000 - 60000 // remove 1 minute on expiry
     log(`Token refresh Timeout set in ${tokenExpiryInMillis} milliseconds.`)
-    if(this.tokenRefreshTimer) {
+    if (this.tokenRefreshTimer) {
       clearTimeout(this.tokenRefreshTimer)
     }
     this.tokenRefreshTimer = setTimeout(tokenRefresh, tokenExpiryInMillis, this.refreshToken)
     return this.accessToken
   }
-  
+
   async easeeGetCall(endpoint) {
     log(`Calling GET ${endpoint} ...`)
     const { data } = await axios.get(apiUrl + endpoint).catch((error) => {

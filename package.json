@@ -6,10 +6,11 @@
   "type": "module",
   "readme": "README.md",
   "scripts": {
-    "start": "npm run printEaseeDetails",
-    "printEaseeDetails": "node src/examples/printEaseeDetails.js",
-    "integrationExample": "node src/examples/integrationExamples.js",
-    "debug": "node --inspect integrationExample.js"
+    "test": "tap",
+    "test:live": "node --env-file-if-exists=.env live/discovery.live.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "example": "node --env-file-if-exists=.env src/examples/integrationExamples.js"
   },
   "author": "Joel Cassel",
   "license": "MIT",
@@ -30,7 +31,8 @@
     "axios": "^1.8.4"
   },
   "devDependencies": {
-    "prettier": "3.5.3"
+    "prettier": "^3.9.6",
+    "tap": "^21.7.5"
   },
   "engines": {
     "node": ">=22.0.0"

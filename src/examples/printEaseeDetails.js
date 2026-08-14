@@ -50,9 +50,7 @@ async function getConfigDetails() {
   const sites = await easee.getSites()
   console.log('\n\n---- Listing sites and details "easee.getSites()" ----')
   for (let site of sites) {
-    console.log(
-      `   --- Site: ${site.name}, SiteID: ${site.id},  "easee.getSites()[n]" --- `,
-    )
+    console.log(`   --- Site: ${site.name}, SiteID: ${site.id},  "easee.getSites()[n]" --- `)
     collectedIdInfo.siteId = site.id
     // Get detailed info on the Site
     const siteDetail = await easee.getSite(site.id)
@@ -62,44 +60,27 @@ async function getConfigDetails() {
     console.log(`     - RatedCurrent: ${siteDetail.ratedCurrent}`)
 
     // Go through circuits on each Site
-    console.log(
-      `     --- Circuits[] (collection of chargers sharing same fuse), part of "easee.getSite(site.id)" ---`,
-    )
+    console.log(`     --- Circuits[] (collection of chargers sharing same fuse), part of "easee.getSite(site.id)" ---`)
     for (let circuit of siteDetail.circuits) {
-      console.log(
-        `         - CircuitId: (${circuit.id}), SiteId: (${circuit.siteId})`,
-      )
+      console.log(`         - CircuitId: (${circuit.id}), SiteId: (${circuit.siteId})`)
       collectedIdInfo.circuitId = circuit.id
-      console.log(
-        `         - PanelName: ${circuit.panelName}, ratedCurrent: ${circuit.ratedCurrent}`,
-      )
+      console.log(`         - PanelName: ${circuit.panelName}, ratedCurrent: ${circuit.ratedCurrent}`)
       console.log(`         - UseDynamicMaster: ${circuit.useDynamicMaster}`)
 
       // Print circuit-current details
-      const circuitDetailsResponse = await easee.getCircuitSettings(
-        site.id,
-        circuit.id,
-      )
+      const circuitDetailsResponse = await easee.getCircuitSettings(site.id, circuit.id)
       console.log(
         `         --- Charging-info for circuit (${circuit.id}) "easee.getCircuitSettings(site.id, circuit.id)" ---- `,
       )
       // simple solution to print all with correct indentation
       for (let circuitDetailKey in circuitDetailsResponse) {
-        console.log(
-          `           - ${circuitDetailKey}: ${circuitDetailsResponse[circuitDetailKey]}`,
-        )
+        console.log(`           - ${circuitDetailKey}: ${circuitDetailsResponse[circuitDetailKey]}`)
       }
 
-      console.log(
-        `     --- Chargers[] details, part of "easee.getSite(site.id)" ---`,
-      )
+      console.log(`     --- Chargers[] details, part of "easee.getSite(site.id)" ---`)
       for (let chargerDetails of circuit.chargers) {
-        console.log(
-          `       - Charger: ${chargerDetails.name} (ChargerId: ${chargerDetails.id})`,
-        )
-        console.log(
-          `         - CreatedOn: ${chargerDetails.createdOn}, BackplateId: ${chargerDetails.backPlate.id}, `,
-        )
+        console.log(`       - Charger: ${chargerDetails.name} (ChargerId: ${chargerDetails.id})`)
+        console.log(`         - CreatedOn: ${chargerDetails.createdOn}, BackplateId: ${chargerDetails.backPlate.id}, `)
         console.log(
           `         - LevelOfAccess: ${chargerDetails.levelOfAccess}, BackplateId: ${chargerDetails.productCode}, `,
         )
