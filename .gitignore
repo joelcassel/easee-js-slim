@@ -106,3 +106,12 @@ dist
 .vscode
 
 easee_env.sh
+
+# Claude
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.mcp.json
+
+# tap
+.tap/
