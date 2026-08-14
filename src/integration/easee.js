@@ -14,6 +14,7 @@ export class Easee {
     this.onlyOneSiteId = customData.onlyOneSiteId || process.env.EASEE_SITEID || '--NOT_SET_SITEID--'
     this.onlyOneCircuitId = customData.onlyOneCircuitId || process.env.EASEE_CIRCUITID || '--NOT_SET_CIRCUITID--'
     this.throwErrorsOnFault = !!(customData.throwErrorsOnFault || process.env.EASEE_THROW_ERRORS_ON_FAULT)
+    this.client = customData.client ?? axios.create({ baseURL: apiUrl })
     this.tokenRefreshTimer = null
   }
 
@@ -27,8 +28,8 @@ export class Easee {
     let response
     if (!refreshToken) {
       log('Query new access token..')
-      response = await axios
-        .post(apiUrl + '/api/accounts/login', {
+      response = await this.client
+        .post('/api/accounts/login', {
           userName: this.username,
           password: this.password,
         })
@@ -39,8 +40,8 @@ export class Easee {
         })
     } else {
       log('Query new access token with refresh token..')
-      response = await axios
-        .post(apiUrl + '/api/accounts/refresh_token', {
+      response = await this.client
+        .post('/api/accounts/refresh_token', {
           accessToken: this.accessToken,
           refreshToken: refreshToken,
         })
@@ -58,10 +59,8 @@ export class Easee {
       throw new Error('Could not load Easee access Token, verify your login and credentials.')
     }
 
-    //Set global token for next calls
     log('Token retrieved..')
-    log(response.data)
-    axios.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${this.accessToken}`
 
     // Refresh token 1 minute before it expires
     this.refreshToken = response.data.refreshToken
@@ -86,7 +85,11 @@ export class Easee {
 
   async easeeGetCall(endpoint) {
     log(`Calling GET ${endpoint} ...`)
-    const { data } = await axios.get(apiUrl + endpoint).catch((error) => {
+    try {
+      const { data } = await this.client.get(endpoint)
+      log(`Response:\n`, data)
+      return data
+    } catch (error) {
       logRequestError(error)
       if (this.throwErrorsOnFault) {
         throw new Error(
@@ -94,24 +97,24 @@ export class Easee {
         )
       }
       return {}
-    })
-    log(`Response:\n`, data)
-    return data
+    }
   }
 
   async easeePostCall(endpoint, jsonBodyObject = {}) {
     log(`Calling POST ${endpoint} ...`)
-    const response = await axios.post(apiUrl + endpoint, jsonBodyObject).catch((error) => {
+    try {
+      const response = await this.client.post(endpoint, jsonBodyObject)
+      log(`Response:\n`, response.status)
+      return response
+    } catch (error) {
       logRequestError(error)
       if (this.throwErrorsOnFault) {
         throw new Error(
           `Error on Easee POST ${endpoint}, Error: ${error?.response?.status} (${error?.response?.statusText})`,
         )
       }
-      return {}
-    })
-    log(`Response:\n`, response)
-    return response
+      return error.response ?? { status: null, statusText: null, data: {} }
+    }
   }
 
   // Helper to send the "command" to a charger
@@ -227,6 +230,9 @@ export class Easee {
     console.log('Just starting')
     //Get charging state
     const result = await this.getChargerState(chargerId)
+    if (typeof result?.reasonForNoCurrent !== 'number') {
+      return { status: 'No action', message: 'Could not read charger state' }
+    }
     if (result.reasonForNoCurrent === reasonForNoCurrent.OK) {
       return { status: 'No action', message: 'Charging already started' }
     } else if (result.reasonForNoCurrent === reasonForNoCurrent.WaitingInFully) {
@@ -286,8 +292,7 @@ export class Easee {
   // Helper function to see if you forgot to connect the cable, or if there are errors.
   async isEVCableConnected(chargerId = this.onlyOneChargerId) {
     const status = await this.getChargerState(chargerId)
-    log(`IsEVCableConnected cableLocked: ${status?.cableLocked}`)
-    if (!status) {
+    if (typeof status?.chargerOpMode !== 'number') {
       return false
     }
     log(`IsEVCableConnected chargerOpMode: ${status.chargerOpMode}, .. see chargerOpMode.js`)
