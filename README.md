@@ -26,24 +26,29 @@ Simplest way:
        set EASEE_USERNAME=youremal@domain.com
        set EASEE_PASSWORD=Password123
    ```
-1. As a one-time thing, run `node node_modules/easee-js-slim/src/examples/printEaseeDetails.js`
-   ... This will log in and print the complicated nested details. It will print a lot of details and summarize with your IDs example:
+1. As a one-time thing, run this to print your ids:
 
-   ```
-        ..
-        ....
-        It seems you have only one charger and setup.
-        For convenience you can then pre-set all as env-variables and the API will use the default.
+   ```javascript
+   import Easee from 'easee-js-slim'
 
-        export EASEE_CHARGERID='EH2AABCD'
-        export EASEE_SITEID='1234567'
-        export EASEE_CIRCUITID='123456'
-        export EASEE_DEBUG=true
+   const easee = new Easee()
+   await easee.initAccessToken()
+   for (const site of await easee.getSites()) {
+     const detail = await easee.getSite(site.id)
+     for (const circuit of detail.circuits) {
+       for (const charger of circuit.chargers) {
+         console.log(`EASEE_CHARGERID=${charger.id} EASEE_SITEID=${site.id} EASEE_CIRCUITID=${circuit.id}`)
+       }
+     }
+   }
+   easee.close()
    ```
+
+   Set those as `EASEE_CHARGERID`, `EASEE_SITEID` and `EASEE_CIRCUITID` and every method will default to them.
 
 ## Making use of the framework
 
-1. `npm install -save easee-js-slim` to install the package to your project
+1. `npm install easee-js-slim` to install the package to your project
 2. Set the login variables in your `ENV` _(or pass them as parameters, look in the code)_
    Here is some example code to get you started
 
@@ -69,6 +74,7 @@ easeeExample()
 ## API and Documentation
 
 - Look at `src/integration/easee.js` where all functions are easy to read in the code
+- TypeScript types ship with the package (`src/index.d.ts`), no build step needed
 - Read the official API on https://developer.easee.com/docs/get-started for more details
 
 ### Quick reference
@@ -80,7 +86,7 @@ await easee.initAccessToken()
 const chargers = await easee.getChargers()
 const chargerDetails = await easee.getChargerDetails()
 const conf = await easee.getChargerConfig()
-const schedule = await getWeeklySchedule()
+const schedule = await easee.getWeeklySchedule()
 const sites = await easee.getSites()
 const site = await easee.getSite()
 const circuit = await easee.getCircuitSettings()
@@ -126,15 +132,28 @@ easee.updateWeeklySchedule(weeklySchedule)
 
 **_Note: i managed to crash my schedule when sending partial json to this endpoint, so an emergency copy is added to `src/examples/weeklySchedule.json`_**
 
-### Access token (updated)
+### Access token
 
-The `initAccessToken()` is now needed to run first to log in and load the first token. The returned time interval for the token is now taken into account, so it will be refreshed automatically ~1 minute before it expires.
+Run `initAccessToken()` first to log in. The token is refreshed automatically ~1 minute before it expires.
+
+The refresh timer is `unref`-ed, so it will not keep your process alive on its own. If you run a daemon that does nothing but hold the token, pass `{ unrefTimer: false }`.
 
 ### Debug logging and Errors handling
 
-Make sure to set the `export EASEE_DEBUG=true` when doing integration. It will log most calls and results in a nice way.
+Set `export EASEE_DEBUG=true` to log calls and results. Tokens and request bodies are never logged.
 
-By default only the init-functions will throw errors directly. All other functions returns an empty result on error. This was not optimal behavior, so now you can set the env-variable `EASEE_THROW_ERRORS_ON_FAULT=true` or the `customData.throwErrorsOnFault:true` to make all functions throw errors on fault. Unless set to true it will not change the old behavior.
+Failed calls throw by default. Set `EASEE_THROW_ERRORS_ON_FAULT=false` or `customData.throwErrorsOnFault:false` to get an empty result instead.
+
+### Custom Axios client
+
+Pass your own instance to set a timeout, a proxy, an agent or interceptors:
+
+```javascript
+import axios from 'axios'
+const easee = new Easee(user, pass, {
+  client: axios.create({ baseURL: 'https://api.easee.com', timeout: 10000 }),
+})
+```
 
 ## General information and known issues
 
@@ -151,3 +170,19 @@ By default only the init-functions will throw errors directly. All other functio
 - 1.3.1 Updated readme and renamed env throwing flag to EASEE_THROW_ERRORS_ON_FAULT
 - 1.3.3 Updated `tokenRefreshTimer` function, `1.3.0-1.3.4` has broken refreshToken function
 - 1.3.5 Update since the Easee Refresh token API changed some time back, https://developer.easee.com/changelog/refresh-token-handling. Finally good
+- 2.0.0 Breaking. See below.
+
+### 2.0.0 breaking changes
+
+- The refresh timer is `unref`-ed, so it no longer keeps your process alive. Pass `{ unrefTimer: false }` to restore.
+- `throwErrorsOnFault` now defaults to `true`. Set `EASEE_THROW_ERRORS_ON_FAULT=false` for the old silent-empty behavior.
+- `EASEE_THROW_ERRORS_ON_FAULT=false` now actually means false. It used to enable throwing, since any non-empty string was truthy.
+- The access token no longer goes on the global Axios defaults. If you called `api.easee.com` with your own Axios and relied on being authenticated for free, use `easee.client` instead.
+- Failed reads return `{}` rather than `undefined`, and failed writes return `{status, statusText, data}`.
+- `getPowerUsage()` defaults to the last 24h, as documented. It used to go back 3 days.
+- `startOrResumeCharging()` no longer starts charging when the charger state cannot be read, and its retry loop now terminates. `recursive++` meant the base case was unreachable.
+- `isEVCableConnected()` returns `false` when the state cannot be read, rather than `true`.
+- Requires Node >= 26.
+- `src/examples/printEaseeDetails.js` is gone. The quickstart snippet above replaces it.
+- Deep imports are blocked by the `exports` map. `reasonForNoCurrent` and `chargerOpMode` are named exports from the package root.
+- A failed login used to print the plaintext password to stdout. It no longer logs request bodies at all.
