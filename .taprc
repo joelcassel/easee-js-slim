@@ -1,0 +1,19 @@
+allow-incomplete-coverage: false
+allow-empty-coverage: false
+statements: 80
+branches: 80
+functions: 80
+lines: 80
+coverage-report:
+  - text
+exclude:
+  - live/**
+  - src/examples/**
+test-env:
+  - EASEE_USERNAME
+  - EASEE_PASSWORD
+  - EASEE_CHARGERID
+  - EASEE_SITEID
+  - EASEE_CIRCUITID
+  - EASEE_DEBUG
+  - EASEE_THROW_ERRORS_ON_FAULT
