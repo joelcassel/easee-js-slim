@@ -186,3 +186,7 @@ const easee = new Easee(user, pass, {
 - `src/examples/printEaseeDetails.js` is gone. The quickstart snippet above replaces it.
 - Deep imports are blocked by the `exports` map. `reasonForNoCurrent` and `chargerOpMode` are named exports from the package root.
 - A failed login used to print the plaintext password to stdout. It no longer logs request bodies at all.
+
+### 2.1.0
+
+- Easee removed the deprecated `/api/chargers/{id}/state` endpoint, so `getChargerState()` no longer reads it. It now reconstructs state from the observations API and returns only `{ chargerOpMode, reasonForNoCurrent }` — the two values the built-in `isEVCableConnected()` and `startOrResumeCharging()` rely on. Consumers that read other state fields (e.g. phase currents) must switch to the new `getObservations(observationIdList[, chargerId, from, to])`, which returns the latest value per requested ID keyed by name. The exported `observationIDs` map and the `Easee.observationIDs` static hold the ID for each value.
