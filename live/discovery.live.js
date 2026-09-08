@@ -40,6 +40,8 @@ t.test('easee live read-only discovery', { skip }, async (t) => {
   const first = chargers[0]
   const state = await easee.getChargerState(first.id)
   t.type(state.chargerOpMode, 'number', 'charger state has a numeric chargerOpMode')
+  const observations = await easee.getObservations([Easee.observationIDs.ChargerOpMode], first.id)
+  t.type(observations.ChargerOpMode, 'number', 'observations return the latest chargerOpMode')
   t.type(await easee.isEVCableConnected(first.id), 'boolean')
   t.type(await easee.getChargerDetails(first.id), 'object')
   t.type(await easee.getChargerConfig(first.id), 'object')

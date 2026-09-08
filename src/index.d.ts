@@ -24,6 +24,8 @@ export interface NoActionResult {
 export declare class Easee {
   constructor(username?: string, password?: string, customData?: EaseeOptions)
 
+  static observationIDs: { [name: string]: number }
+
   accessToken: string | null
   refreshToken: string | null
   username: string | undefined
@@ -52,6 +54,12 @@ export declare class Easee {
   getWeeklySchedule(chargerId?: string): Promise<any>
   getChargerConfig(chargerId?: string): Promise<any>
   getChargerState(chargerId?: string): Promise<any>
+  getObservations(
+    observationIdList: number[],
+    chargerId?: string,
+    from?: string | null,
+    to?: string | null,
+  ): Promise<Record<string, number | string | boolean | null>>
   getSites(): Promise<any>
   getSite(siteId?: string): Promise<any>
   getCircuitSettings(siteId?: string, circuitId?: string): Promise<any>
@@ -103,6 +111,10 @@ export declare const chargerOpMode: {
   Completed: 4
   Error: 5
   ReadyToCharge: 6
+}
+
+export declare const observationIDs: {
+  [name: string]: number
 }
 
 export default Easee

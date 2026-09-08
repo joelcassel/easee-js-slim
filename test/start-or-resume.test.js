@@ -3,7 +3,11 @@ import { Easee, reasonForNoCurrent } from '../src/index.js'
 import { fakeClient } from './fixtures/fake-client.js'
 
 function easeeSeeing(reason) {
-  const client = fakeClient({ get: () => ({ data: { reasonForNoCurrent: reason } }) })
+  const client = fakeClient({
+    get: (url) => ({
+      data: url.includes('/observations/96/') ? [{ timestamp: '2026-01-01T00:00:00.000Z', value: reason }] : [],
+    }),
+  })
   return { client, easee: new Easee('u', 'p', { client, resumeWaitMs: 0 }) }
 }
 
@@ -50,7 +54,8 @@ t.test('any other reason starts charging', async (t) => {
 t.test('a charger stuck paused retries twice and then gives up', async (t) => {
   const { client, easee } = easeeSeeing(reasonForNoCurrent.MaxDynamicChargerCurrentTooLow)
   await easee.startOrResumeCharging('EH1')
-  t.equal(client.calls.get.length, 2)
+  t.equal(client.calls.get.length, 4)
+  t.equal(client.calls.get.filter((u) => u.includes('/observations/96/')).length, 2)
   t.equal(client.calls.post.length, 2)
   t.strictSame(
     client.calls.post.map((c) => c.url),
@@ -59,7 +64,7 @@ t.test('a charger stuck paused retries twice and then gives up', async (t) => {
 })
 
 t.test('an unreadable state never commands the charger', async (t) => {
-  const client = fakeClient({ get: () => ({ data: {} }) })
+  const client = fakeClient({ get: () => ({ data: [] }) })
   const easee = new Easee('u', 'p', { client, resumeWaitMs: 0 })
   t.strictSame(await easee.startOrResumeCharging('EH1'), {
     status: 'No action',

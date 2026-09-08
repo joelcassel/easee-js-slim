@@ -1,12 +1,16 @@
 import axios from 'axios'
 import reasonForNoCurrent from './reasonForNoCurrent.js'
 import chargerOpMode from './chargerOpMode.js'
+import observationIDs from './observationIDs.js'
 
 // API Details for Easee : https://developer.easee.com/docs/get-started
 const apiUrl = 'https://api.easee.com'
 const MIN_REFRESH_DELAY_MS = 60000
+const STATE_OBSERVATION_WINDOW_MS = 24 * 60 * 60 * 1000
 
 export class Easee {
+  static observationIDs = observationIDs
+
   constructor(username = process.env.EASEE_USERNAME, password = process.env.EASEE_PASSWORD, customData = {}) {
     this.accessToken = null
     this.refreshToken = null
@@ -165,10 +169,34 @@ export class Easee {
     return response
   }
 
-  // https://developer.easee.com/reference/get_api-chargers-id-state
+  // https://developer.easee.com/reference/getobservations
+  async getObservations(observationIdList = [], chargerId = this.onlyOneChargerId, from = null, to = null) {
+    const fromISO = from ?? new Date(Date.now() - STATE_OBSERVATION_WINDOW_MS).toISOString()
+    const toISO = to ?? new Date().toISOString()
+    const fromEncoded = encodeURIComponent(fromISO)
+    const toEncoded = encodeURIComponent(toISO)
+
+    const results = {}
+
+    for (const id of observationIdList) {
+      const observations = await this.easeeGetCall(
+        `/api/chargers/${chargerId}/observations/${id}/${fromEncoded}/${toEncoded}`,
+      )
+      const name = Object.keys(observationIDs).find((key) => observationIDs[key] === id)
+      results[name] = latestObservationValue(observations)
+    }
+
+    return results
+  }
+
+  // https://developer.easee.com/reference/getobservations
+  // The /state endpoint is deprecated, reconstructed from observations.
   async getChargerState(chargerId = this.onlyOneChargerId) {
-    const response = await this.easeeGetCall(`/api/chargers/${chargerId}/state`)
-    return response
+    const { ChargerOpMode, ReasonForNoCurrent } = await this.getObservations(
+      [observationIDs.ChargerOpMode, observationIDs.ReasonForNoCurrent],
+      chargerId,
+    )
+    return { chargerOpMode: ChargerOpMode, reasonForNoCurrent: ReasonForNoCurrent }
   }
 
   // https://developer.easee.com/reference/get_api-sites
@@ -342,6 +370,11 @@ function envFlag(value, fallback) {
     return fallback
   }
   return value !== 'false' && value !== '0'
+}
+
+function latestObservationValue(observations) {
+  const latest = observations?.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0]
+  return latest?.value
 }
 
 function logRequestError(error) {

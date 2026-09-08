@@ -10,7 +10,6 @@ t.test('getters hit the documented endpoints', async (t) => {
     ['getChargerDetails', '/api/chargers/EH1/details'],
     ['getWeeklySchedule', '/api/chargers/EH1/weekly_charge_plan'],
     ['getChargerConfig', '/api/chargers/EH1/config'],
-    ['getChargerState', '/api/chargers/EH1/state'],
     ['getSites', '/api/sites'],
     ['getSite', '/api/sites/S1'],
     ['getCircuitSettings', '/api/sites/S1/circuits/C1/settings'],
@@ -20,6 +19,23 @@ t.test('getters hit the documented endpoints', async (t) => {
     await new Easee('u', 'p', { client, ...ids })[method]()
     t.strictSame(client.calls.get, [endpoint], method)
   }
+})
+
+t.test('getChargerState reads state from the observations endpoint', async (t) => {
+  const client = fakeClient({
+    get: (url) => ({
+      data: url.includes('/observations/109/')
+        ? [{ timestamp: '2026-01-01T00:00:00.000Z', value: 3 }]
+        : url.includes('/observations/96/')
+          ? [{ timestamp: '2026-01-01T00:00:00.000Z', value: 0 }]
+          : [],
+    }),
+  })
+  const easee = new Easee('u', 'p', { client, ...ids })
+  t.strictSame(await easee.getChargerState(), { chargerOpMode: 3, reasonForNoCurrent: 0 })
+  t.ok(client.calls.get.every((u) => u.includes('/api/chargers/EH1/observations/')))
+  t.ok(client.calls.get.some((u) => u.includes('/observations/109/')))
+  t.ok(client.calls.get.some((u) => u.includes('/observations/96/')))
 })
 
 t.test('charger commands hit the documented endpoints', async (t) => {
