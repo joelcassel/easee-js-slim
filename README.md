@@ -190,3 +190,7 @@ const easee = new Easee(user, pass, {
 ### 2.1.0
 
 - Easee removed the deprecated `/api/chargers/{id}/state` endpoint, so `getChargerState()` no longer reads it. It now reconstructs state from the observations API and returns only `{ chargerOpMode, reasonForNoCurrent }` — the two values the built-in `isEVCableConnected()` and `startOrResumeCharging()` rely on. Consumers that read other state fields (e.g. phase currents) must switch to the new `getObservations(observationIdList[, chargerId, from, to])`, which returns the latest value per requested ID keyed by name. The exported `observationIDs` map and the `Easee.observationIDs` static hold the ID for each value.
+
+### 2.1.1
+
+- Dependency updates: axios bumped to 1.21.0 and transitive vulnerabilities patched. Added a `.env.default` template for local `.env` setup. No API changes.
